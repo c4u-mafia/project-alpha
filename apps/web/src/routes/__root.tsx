@@ -44,16 +44,20 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
+import { ThemeProvider } from "../components/theme-provider"
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
+    <ThemeProvider defaultTheme="light" storageKey="rentdirect-ui-theme">
+      <html lang="en">
+        <head>
+          <HeadContent />
+        </head>
+        <body className="min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-primary/20 selection:text-primary">
+          {children}
+          <Scripts />
+        </body>
+      </html>
+    </ThemeProvider>
   )
 }
