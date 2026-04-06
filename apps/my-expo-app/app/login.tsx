@@ -5,7 +5,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.replace('/(main)/home');
+    router.replace('/(tabs)');
   };
 
   return <LoginScreen onLogin={handleLogin} />;
