@@ -4,12 +4,14 @@
     "slug": "my-expo-app",
     "version": "1.0.0",
 
+    "scheme": "rentdirect",
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
-
     "experiments": {
-      "tsconfigPaths": true
+      "tsconfigPaths": true,
+      "typedRoutes": true
     },
 
     "plugins": [],
