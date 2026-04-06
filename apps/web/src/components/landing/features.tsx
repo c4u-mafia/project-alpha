@@ -2,7 +2,7 @@ import { ArrowRight, MapPinned, MessageCircleMore } from "lucide-react"
 
 export function Features() {
   return (
-    <section className="bg-[#f8f9fa] py-24" id="properties">
+    <section className="bg-background py-24" id="properties">
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <div className="mb-16 flex flex-col items-end justify-between gap-6 md:flex-row">
           <div className="max-w-2xl text-left">
@@ -31,9 +31,9 @@ export function Features() {
             </div>
           </article>
 
-          <article className="flex flex-col justify-between rounded-3xl bg-secondary p-8 md:col-span-4 shadow-sm hover:shadow-md transition-all">
+          <article className="flex flex-col justify-between rounded-3xl bg-secondary/50 p-8 md:col-span-4 shadow-sm hover:shadow-md transition-all border border-border/50">
             <div>
-              <div className="mb-6 flex size-12 items-center justify-center rounded-full bg-white shadow-sm">
+              <div className="mb-6 flex size-12 items-center justify-center rounded-full bg-background shadow-sm">
                 <MapPinned className="size-6 text-primary" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-foreground font-heading">Exact Locations</h3>
@@ -48,7 +48,7 @@ export function Features() {
             </div>
           </article>
 
-          <article className="rounded-3xl bg-slate-100 p-8 md:col-span-4 shadow-sm group hover:bg-slate-200 transition-all border border-slate-200/50">
+          <article className="rounded-3xl bg-secondary/30 p-8 md:col-span-4 shadow-sm group hover:bg-secondary/50 transition-all border border-border/50">
             <div className="mb-6 flex size-12 items-center justify-center rounded-full bg-primary/10 transition-transform group-hover:scale-110 shadow-sm">
               <MessageCircleMore className="size-6 text-primary" />
             </div>
@@ -58,8 +58,8 @@ export function Features() {
             </p>
           </article>
 
-          <article className="flex flex-col sm:flex-row items-center gap-8 rounded-3xl bg-white p-8 md:col-span-8 shadow-sm hover:shadow-md transition-all">
-            <div className="h-40 w-full sm:w-40 shrink-0 overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+          <article className="flex flex-col sm:flex-row items-center gap-8 rounded-3xl bg-card p-8 md:col-span-8 shadow-sm hover:shadow-md transition-all border border-border/50">
+            <div className="h-40 w-full sm:w-40 shrink-0 overflow-hidden rounded-2xl border border-border shadow-sm">
               <img
                 src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=400"
                 alt="Document signing"

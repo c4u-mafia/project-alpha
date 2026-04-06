@@ -2,7 +2,7 @@ import { ModeToggle } from "../mode-toggle"
 
 export function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full bg-background/70 shadow-sm backdrop-blur-md border-b border-border/40">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-md transition-colors duration-500">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-8">
         <div className="text-2xl font-extrabold tracking-tight text-primary font-heading">
           RentDirect
