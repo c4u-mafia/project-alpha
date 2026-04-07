@@ -10,7 +10,7 @@ export {
   ErrorBoundary,
 } from 'expo-router';
 
-export const prevConfig = {
+export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: 'index',
 };
@@ -20,8 +20,7 @@ Splash.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    // We can add custom fonts here if needed, 
-    // but NativeWind uses system/CSS fonts by default.
+    // Add custom fonts here if needed
   });
 
   useEffect(() => {
@@ -34,13 +33,6 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // Loading indicator or empty view while fonts load
-  // if (!loaded) return null;
-
-  return <RootStack />;
-}
-
-function RootStack() {
   return (
     <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen name="index" />

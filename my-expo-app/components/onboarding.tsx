@@ -1,148 +1,447 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
-  withTiming, 
-  interpolate,
-  useDerivedValue
+import React, { memo, useState } from 'react';
+import {
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import Animated, {
+  type SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
-const STEPS = [
+type StepTheme = 'dark' | 'light';
+
+type Step = {
+  id: number;
+  title: string;
+  description: string;
+  tagline: string;
+  type: StepTheme;
+  subtext: string;
+};
+
+const STEPS: Step[] = [
   {
     id: 1,
     title: 'No Agents,\nNo Hassle.',
-    description: "We've cut out the middleman. Chat directly with landlords and close deals in minutes, not days.",
+    description:
+      "We've cut out the middleman. Chat directly with landlords and close deals in minutes, not days.",
     tagline: 'DIRECT TO LANDLORD',
-    color: '#006970',
     type: 'dark',
-    subtext: 'YOUR URBAN SANCTUARY AWAITS'
+    subtext: 'YOUR URBAN SANCTUARY AWAITS',
   },
   {
     id: 2,
     title: 'Verified\nListings Only',
-    description: 'What you see is what you get. Every home is physically inspected for 100% authenticity.',
+    description:
+      'What you see is what you get. Every home is physically inspected for 100% authenticity.',
     tagline: 'VERIFIED',
-    color: '#004D53',
     type: 'light',
-    subtext: 'QUALITY ASSURED'
-  }
+    subtext: 'QUALITY ASSURED',
+  },
 ];
 
-export const Onboarding = ({ onFinish }: { onFinish: () => void }) => {
+const StepIndicator = ({
+  index,
+  progress,
+  theme,
+}: {
+  index: number;
+  progress: SharedValue<number>;
+  theme: StepTheme;
+}) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    const isActive = Math.round(progress.value) === index;
+
+    return {
+      width: withSpring(isActive ? 32 : 12),
+      opacity: isActive ? 1 : 0.3,
+      backgroundColor: theme === 'dark' ? '#FFFFFF' : '#006970',
+    };
+  });
+
+  return <Animated.View style={[styles.indicator, animatedStyle]} />;
+};
+
+export const Onboarding = memo(({ onFinish }: { onFinish: () => void }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const stepProgress = useSharedValue(0);
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
-      setCurrentStep(prev => prev + 1);
-      stepProgress.value = withSpring(currentStep + 1);
-    } else {
-      onFinish();
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      stepProgress.value = withSpring(nextStep);
+      return;
     }
-  };
 
-  const handleSkip = () => {
     onFinish();
   };
 
-  const contentStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: -stepProgress.value * width }
-      ]
-    };
-  });
-
-  const indicatorStyle = (index: number) => useAnimatedStyle(() => {
-    const isActive = Math.round(stepProgress.value) === index;
-    return {
-      width: withSpring(isActive ? 32 : 12),
-      opacity: isActive ? 1 : 0.3,
-      backgroundColor: STEPS[currentStep].type === 'dark' ? '#FFFFFF' : '#006970'
-    };
-  });
-
   const step = STEPS[currentStep];
+  const isDark = step.type === 'dark';
 
   return (
-    <View className={`flex-1 ${step.type === 'dark' ? 'bg-[#111827]' : 'bg-white'}`}>
-      {/* Background Section (Simulating image with color/layout) */}
-      <View className="h-1/2 w-full relative">
-        {step.type === 'dark' ? (
-          <View className="flex-1 bg-[#004D53] items-center justify-center">
-             <View className="w-48 h-48 rounded-full bg-white/5 absolute -top-12 -right-12" />
-             <View className="w-64 h-64 rounded-full bg-white/5 absolute -bottom-24 -left-12" />
-             <View className="bg-white/10 px-4 py-2 rounded-full border border-white/20">
-               <Text className="text-white font-bold tracking-widest text-xs">{step.tagline}</Text>
-             </View>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? '#111827' : '#FFFFFF' },
+      ]}
+    >
+      <View style={styles.heroSection}>
+        {isDark ? (
+          <View style={[styles.heroPanel, styles.heroDark]}>
+            <View style={[styles.blob, styles.blobTop]} />
+            <View style={[styles.blob, styles.blobBottom]} />
+            <View style={styles.darkTag}>
+              <Text style={styles.darkTagText}>{step.tagline}</Text>
+            </View>
           </View>
         ) : (
-          <View className="flex-1 bg-[#F3F4F6] items-center justify-center p-8">
-            <View className="bg-white p-4 rounded-3xl shadow-xl w-full">
-               <View className="h-48 bg-[#006970] rounded-2xl mb-4 relative overflow-hidden">
-                  <View className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full">
-                    <Text className="text-[#006970] text-[10px] font-bold">VERIFIED</Text>
-                  </View>
-               </View>
-               <View className="flex-row justify-between items-center">
-                 <View>
-                   <Text className="font-bold text-lg">Azure Bay Apartment</Text>
-                   <Text className="text-neutral-400 text-sm">Victoria Island, Lagos</Text>
-                 </View>
-                 <Text className="text-[#006970] font-bold text-lg">N4.5M</Text>
-               </View>
+          <View style={[styles.heroPanel, styles.heroLight]}>
+            <View style={styles.propertyCard}>
+              <View style={styles.propertyImage}>
+                <View style={styles.verifiedBadge}>
+                  <Text style={styles.verifiedBadgeText}>VERIFIED</Text>
+                </View>
+              </View>
+              <View style={styles.propertyFooter}>
+                <View>
+                  <Text style={styles.propertyTitle}>Azure Bay Apartment</Text>
+                  <Text style={styles.propertyLocation}>
+                    Victoria Island, Lagos
+                  </Text>
+                </View>
+                <Text style={styles.propertyPrice}>N4.5M</Text>
+              </View>
             </View>
           </View>
         )}
-        
-        {/* Header Overlay */}
-        <View className="absolute top-12 left-0 right-0 px-8 flex-row justify-between items-center">
-          <Text className={`font-bold text-xl ${step.type === 'dark' ? 'text-white' : 'text-[#006970]'}`}>RentDirect</Text>
-          <TouchableOpacity onPress={handleSkip}>
-            <View className={`px-4 py-1.5 rounded-full ${step.type === 'dark' ? 'bg-white/20' : 'bg-[#006970]/10'}`}>
-              <Text className={`font-semibold ${step.type === 'dark' ? 'text-white' : 'text-[#006970]'}`}>Skip</Text>
+
+        <View style={styles.headerOverlay}>
+          <Text style={[styles.brand, isDark ? styles.brandDark : styles.brandLight]}>
+            RentDirect
+          </Text>
+          <Pressable onPress={onFinish} style={styles.skipTouch}>
+            <View
+              style={[
+                styles.skipChip,
+                isDark ? styles.skipChipDark : styles.skipChipLight,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.skipText,
+                  isDark ? styles.skipTextDark : styles.skipTextLight,
+                ]}
+              >
+                Skip
+              </Text>
             </View>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
 
-      {/* Content Section */}
-      <View className="flex-1 px-8 pt-10">
-        <View className="flex-row gap-2 mb-10">
-           {STEPS.map((_, i) => (
-             <Animated.View key={i} style={indicatorStyle(i)} className="h-2 rounded-full" />
-           ))}
+      <View style={styles.contentSection}>
+        <View style={styles.indicatorRow}>
+          {STEPS.map((_, index) => (
+            <StepIndicator
+              key={index}
+              index={index}
+              progress={stepProgress}
+              theme={step.type}
+            />
+          ))}
         </View>
 
-        <Text className={`text-5xl font-bold mb-6 tracking-tight ${step.type === 'dark' ? 'text-white' : 'text-[#111827]'}`}>
+        <Text style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}>
           {step.title}
         </Text>
 
-        <Text className={`text-lg leading-relaxed mb-12 ${step.type === 'dark' ? 'text-white/60' : 'text-neutral-500'}`}>
+        <Text
+          style={[
+            styles.description,
+            isDark ? styles.descriptionDark : styles.descriptionLight,
+          ]}
+        >
           {step.description}
         </Text>
 
-        <View className="mt-auto mb-16 items-center">
-          <TouchableOpacity 
-            activeOpacity={0.8}
+        <View style={styles.footer}>
+          <Pressable
             onPress={handleNext}
-            className={`w-full py-5 rounded-3xl flex-row items-center justify-center ${step.type === 'dark' ? 'bg-white' : 'bg-[#004D53]'}`}
+            style={({ pressed }) => [
+              styles.primaryButton,
+              isDark ? styles.primaryButtonDark : styles.primaryButtonLight,
+              pressed && styles.primaryButtonPressed,
+            ]}
           >
-            <Text className={`font-bold text-xl mr-2 ${step.type === 'dark' ? 'text-[#004D53]' : 'text-white'}`}>
+            <Text
+              style={[
+                styles.primaryButtonText,
+                isDark
+                  ? styles.primaryButtonTextDark
+                  : styles.primaryButtonTextLight,
+              ]}
+            >
               Next
             </Text>
-            <Text className={`text-xl ${step.type === 'dark' ? 'text-[#004D53]' : 'text-white'}`}>→</Text>
-          </TouchableOpacity>
-          
-          <Text className="mt-6 text-neutral-400 tracking-[4px] text-[10px] font-bold uppercase">
-             {step.subtext}
-          </Text>
+            <Text
+              style={[
+                styles.primaryButtonArrow,
+                isDark
+                  ? styles.primaryButtonTextDark
+                  : styles.primaryButtonTextLight,
+              ]}
+            >
+              {'->'}
+            </Text>
+          </Pressable>
+
+          <Text style={styles.subtext}>{step.subtext}</Text>
         </View>
       </View>
     </View>
   );
-};
+});
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  heroSection: {
+    height: '50%',
+    position: 'relative',
+    width: '100%',
+  },
+  heroPanel: {
+    flex: 1,
+  },
+  heroDark: {
+    alignItems: 'center',
+    backgroundColor: '#004D53',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  heroLight: {
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    padding: 32,
+  },
+  blob: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 9999,
+    position: 'absolute',
+  },
+  blobTop: {
+    height: 192,
+    right: -48,
+    top: -48,
+    width: 192,
+  },
+  blobBottom: {
+    bottom: -96,
+    height: 256,
+    left: -48,
+    width: 256,
+  },
+  darkTag: {
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderColor: 'rgba(255,255,255,0.20)',
+    borderRadius: 9999,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  darkTagText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1.8,
+  },
+  propertyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    elevation: 4,
+    padding: 16,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    width: '100%',
+  },
+  propertyImage: {
+    backgroundColor: '#006970',
+    borderRadius: 20,
+    height: 192,
+    marginBottom: 16,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  verifiedBadge: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 9999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    position: 'absolute',
+    right: 16,
+    top: 16,
+  },
+  verifiedBadgeText: {
+    color: '#006970',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  propertyFooter: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  propertyTitle: {
+    color: '#111827',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  propertyLocation: {
+    color: '#A3A3A3',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  propertyPrice: {
+    color: '#006970',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  headerOverlay: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    left: 0,
+    paddingHorizontal: 32,
+    position: 'absolute',
+    right: 0,
+    top: 48,
+  },
+  brand: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  brandDark: {
+    color: '#FFFFFF',
+  },
+  brandLight: {
+    color: '#006970',
+  },
+  skipTouch: {
+    borderRadius: 9999,
+  },
+  skipChip: {
+    borderRadius: 9999,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+  },
+  skipChipDark: {
+    backgroundColor: 'rgba(255,255,255,0.20)',
+  },
+  skipChipLight: {
+    backgroundColor: 'rgba(0,105,112,0.10)',
+  },
+  skipText: {
+    fontWeight: '600',
+  },
+  skipTextDark: {
+    color: '#FFFFFF',
+  },
+  skipTextLight: {
+    color: '#006970',
+  },
+  contentSection: {
+    flex: 1,
+    paddingHorizontal: 32,
+    paddingTop: 40,
+  },
+  indicatorRow: {
+    flexDirection: 'row',
+    marginBottom: 40,
+  },
+  indicator: {
+    borderRadius: 9999,
+    height: 8,
+    marginHorizontal: 4,
+  },
+  title: {
+    fontSize: width > 380 ? 46 : 40,
+    fontWeight: '700',
+    letterSpacing: -1.5,
+    lineHeight: width > 380 ? 52 : 46,
+    marginBottom: 24,
+  },
+  titleDark: {
+    color: '#FFFFFF',
+  },
+  titleLight: {
+    color: '#111827',
+  },
+  description: {
+    fontSize: 18,
+    lineHeight: 30,
+    marginBottom: 48,
+  },
+  descriptionDark: {
+    color: 'rgba(255,255,255,0.60)',
+  },
+  descriptionLight: {
+    color: '#737373',
+  },
+  footer: {
+    alignItems: 'center',
+    marginBottom: 64,
+    marginTop: 'auto',
+  },
+  primaryButton: {
+    alignItems: 'center',
+    borderRadius: 24,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    width: '100%',
+  },
+  primaryButtonDark: {
+    backgroundColor: '#FFFFFF',
+  },
+  primaryButtonLight: {
+    backgroundColor: '#004D53',
+  },
+  primaryButtonPressed: {
+    opacity: 0.9,
+  },
+  primaryButtonText: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginRight: 8,
+  },
+  primaryButtonTextDark: {
+    color: '#004D53',
+  },
+  primaryButtonTextLight: {
+    color: '#FFFFFF',
+  },
+  primaryButtonArrow: {
+    fontSize: 20,
+  },
+  subtext: {
+    color: '#A3A3A3',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 4,
+    marginTop: 24,
+    textTransform: 'uppercase',
+  },
+});
