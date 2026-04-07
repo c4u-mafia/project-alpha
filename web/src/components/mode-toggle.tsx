@@ -1,7 +1,7 @@
 import { Moon, Sun } from "lucide-react"
 import { motion, AnimatePresence } from "motion/react"
 import { useTheme } from "./theme-provider"
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@/components/ui/button"
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme()

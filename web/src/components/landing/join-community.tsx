@@ -1,5 +1,5 @@
 import { Apple } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export function JoinCommunity() {
   const googleIcon = "https://lh3.googleusercontent.com/aida-public/AB6AXuAYwYu-8rjXGFpi-DfvlKK-PWJI-wEns29AH3TewfuskfdUpo2egafOLJptyn3v1JQaDyfR8TMOOERVSuTd1qTOC6oQ8APzy9xTp1TnvVZkiMuihyp4Aq3RFtsyv0nJU4WMZqGez5mXacJxm94G6XDFI0D_dq79CdjZj60PNPHU5n6ya_zi5qK2S0_0JFWEf0fplBMr5TxqHlgi8iArgS8MRZbrZzSr5BqWp5r74hrDKKdGxgaq6zyX-79oA1hyhUTyhx8MMW73P99Y"
