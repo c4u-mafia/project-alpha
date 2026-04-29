@@ -1,13 +1,9 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "Homelyn",
+    "slug": "Homelyn",
     "version": "1.0.0",
-    "scheme": "rentdirect",
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
-    },
+    "scheme": "Homelyn",
     "experiments": {
       "tsconfigPaths": true,
       "typedRoutes": true
