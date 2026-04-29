@@ -4,7 +4,8 @@ import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import type { BetterAuthOptions } from 'better-auth';
 import { betterAuth } from 'better-auth';
-import { emailOTP, openAPI } from 'better-auth/plugins';
+import { emailOTP, openAPI, jwt } from 'better-auth/plugins';
+import { expo } from '@better-auth/expo';
 import { eq } from 'drizzle-orm';
 
 import { db } from '../db';
@@ -15,8 +16,12 @@ const trustedOrigins = [
   "Homelyn-staging://",
   "Homelyn://*",
   "Homelyn-staging://*",
+  "exp://",
+  "exp://**",
+  "exp://192.168.*.*:*/**",
   process.env.WEB_ORIGIN,
   'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:5173',
   'http://localhost:8081',
   'http://localhost:19006',
@@ -81,6 +86,8 @@ const authConfig: BetterAuthOptions = {
         }
       : undefined,
   plugins: [
+    expo(),
+    jwt(),
     emailOTP({
       overrideDefaultEmailVerification: true,
       sendVerificationOnSignUp: true,
