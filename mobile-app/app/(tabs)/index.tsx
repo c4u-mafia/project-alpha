@@ -1,129 +1,112 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PropertyCard } from '../../components/property-card';
-
-const { width } = Dimensions.get('window');
+import { Heading } from '../../components/ui/heading';
+import { Text } from '../../components/ui/text';
+import { Avatar, AvatarFallbackText } from '../../components/ui/avatar';
+import { Button, ButtonText } from '../../components/ui/button';
 
 const MESSAGES = [
-  { id: '1', name: 'Landlord Segun', text: '"The plumber is on his way..."', status: 'online' },
-  { id: '2', name: 'Amina Bello (Owner)', text: '"Rental update for Oct..."', status: 'away' }
+  { id: '1', name: 'Segun', text: 'Plumber is on his way...', status: 'online' },
+  { id: '2', name: 'Amina', text: 'Rental update for Oct...', status: 'away' }
 ];
 
 const SAVED_PROPS = [
   {
     id: '1',
-    title: 'Penthouse in Lekki Phase 1',
+    title: 'Penthouse Lekki Phase 1',
     price: 'N3.5M',
     location: 'Lekki Phase 1, Lagos',
     beds: 3,
     baths: 3,
-    sqft: '2,400 sqft',
     image: '',
   },
   {
     id: '2',
-    title: 'Modern Flat, Victoria Island',
+    title: 'Modern Flat VI',
     price: 'N2.1M',
     location: 'Victoria Island, Lagos',
     beds: 2,
     baths: 2,
-    sqft: '1,200 sqft',
     image: '',
   }
 ];
 
 export default function DashboardScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F9FA]">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-        {/* Top Header */}
+    <SafeAreaView className="flex-1 bg-background-0">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        {/* Header */}
         <View className="px-8 pt-8 pb-4 flex-row justify-between items-center">
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl">☰</Text>
-          </TouchableOpacity>
-          <Text className="text-[#006970] font-bold text-2xl italic">RentDirect</Text>
-          <TouchableOpacity className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#006970] shadow-lg">
-             <View className="flex-1 bg-neutral-200" />
-          </TouchableOpacity>
+          <View>
+            <Heading size="2xl" className="text-primary-500 italic font-bold">Homelyn</Heading>
+          </View>
+          <Avatar size="md" className="bg-primary-500 shadow-sm border-2 border-background-0">
+            <AvatarFallbackText className="text-typography-0">JD</AvatarFallbackText>
+          </Avatar>
         </View>
 
-        {/* Current Lease Status Card */}
+        {/* Lease Card - Premium */}
         <Animated.View 
-          entering={FadeInDown.duration(800)}
-          className="mx-8 bg-[#006970] rounded-[2.5rem] p-8 mt-6 overflow-hidden relative"
+          entering={FadeInDown.duration(600)}
+          className="mx-8 bg-primary-500 rounded-[32px] p-6 mt-4 shadow-lg shadow-primary-500/30 overflow-hidden"
         >
-          {/* Background circles for organic texture */}
-          <View className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/5" />
-          <View className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-white/5" />
+          <Text size="xs" className="text-typography-0/70 font-bold uppercase tracking-widest mb-2">Lease Status</Text>
+          <Heading size="3xl" className="text-typography-0 leading-tight mb-1">34 days left</Heading>
+          <Text size="sm" className="text-typography-0/80 mb-6 font-medium">Due: Oct 15</Text>
           
-          <Text className="text-white/60 font-bold text-[10px] uppercase tracking-[4px] mb-4">CURRENT LEASE STATUS</Text>
-          <Text className="text-white text-5xl font-bold mb-2">34 days remaining</Text>
-          <Text className="text-white/80 text-lg mb-8">Next payment due: Oct 15, 2023</Text>
-          
-          <View className="bg-white/10 p-6 rounded-[2rem] flex-row justify-between items-center backdrop-blur-xl border border-white/10">
+          <View className="bg-primary-600/50 px-5 py-4 rounded-2xl flex-row justify-between items-center border border-primary-400/30">
              <View>
-               <Text className="text-white/60 text-[10px] font-bold tracking-widest uppercase mb-1">MONTHLY RENT</Text>
-               <Text className="text-white text-2xl font-bold">N450,000</Text>
+               <Text size="xs" className="text-typography-0/70 uppercase tracking-wider font-bold mb-1">Rent</Text>
+               <Heading size="xl" className="text-typography-0">N450K</Heading>
              </View>
-             <TouchableOpacity className="bg-white px-6 py-3.5 rounded-full shadow-lg shadow-black/10">
-                <Text className="text-[#006970] font-bold tracking-widest uppercase text-xs">Pay Rent Securely</Text>
-             </TouchableOpacity>
+             <Button size="sm" className="bg-typography-0 rounded-xl px-6">
+                <ButtonText className="text-primary-500 font-bold uppercase tracking-wide">Pay</ButtonText>
+             </Button>
           </View>
         </Animated.View>
 
-        {/* Active Messages Horizontal Scroll */}
-        <View className="mt-12">
-          <View className="px-8 flex-row justify-between items-center mb-6">
-            <Text className="text-3xl font-bold text-[#111827]">Active Messages</Text>
+        {/* Messages */}
+        <View className="mt-10 px-8">
+          <View className="flex-row justify-between items-end mb-6">
+            <Heading size="xl" className="text-typography-900">Messages</Heading>
             <TouchableOpacity>
-              <Text className="text-[#006970] font-bold text-[10px] tracking-widest uppercase">VIEW ALL</Text>
+              <Text size="sm" className="text-primary-500 font-bold">See all</Text>
             </TouchableOpacity>
           </View>
           
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft: 32, paddingRight: 32 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 32 }} className="gap-4">
             {MESSAGES.map((msg, index) => (
               <Animated.View 
                 key={msg.id}
-                entering={FadeInRight.delay(index * 200).duration(600)}
-                className="bg-white p-6 rounded-[2.5rem] mr-4 flex-row items-center w-72 shadow-sm border border-neutral-100"
+                entering={FadeInRight.delay(index * 100).duration(400)}
+                className="bg-background-50 p-4 rounded-3xl mr-4 flex-row items-center w-72 border border-outline-100 shadow-sm"
               >
-                <View className="h-16 w-16 bg-neutral-200 rounded-2xl mr-4 overflow-hidden relative">
-                   {/* Avatar mask */}
-                   <View className="flex-1 bg-neutral-200" />
-                   {msg.status === 'online' && (
-                     <View className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
-                   )}
-                </View>
+                <Avatar size="md" className="bg-primary-100 mr-4">
+                  <AvatarFallbackText className="text-primary-700 font-bold">{msg.name[0]}</AvatarFallbackText>
+                </Avatar>
                 <View className="flex-1">
-                  <Text className="text-lg font-bold text-[#111827] mb-1">{msg.name}</Text>
-                  <Text className="text-neutral-500 text-xs italic truncate" numberOfLines={1}>{msg.text}</Text>
-                </View>
-                <View className="w-10 h-10 bg-[#F3F4F5] rounded-xl items-center justify-center">
-                  <Text>💬</Text>
+                  <Text size="sm" className="text-typography-900 font-bold mb-1">{msg.name}</Text>
+                  <Text size="xs" className="text-typography-500 italic truncate">{msg.text}</Text>
                 </View>
               </Animated.View>
             ))}
           </ScrollView>
         </View>
 
-        {/* Saved Properties Local View */}
-        <View className="px-8 mt-12">
-          <View className="flex-row justify-between items-center mb-8">
-            <Text className="text-3xl font-bold text-[#111827]">Saved Properties</Text>
-            <View className="flex-row gap-4">
-              <TouchableOpacity className="p-2">
-                <Text className="text-2xl">⬛</Text>
-              </TouchableOpacity>
-              <TouchableOpacity className="p-2">
-                <Text className="text-2xl text-[#006970]">❤️</Text>
-              </TouchableOpacity>
+        {/* Saved Properties */}
+        <View className="mt-10 px-8">
+          <View className="flex-row justify-between items-end mb-6">
+            <Heading size="xl" className="text-typography-900">Saved</Heading>
+            <View className="bg-primary-50 px-3 py-1.5 rounded-full border border-primary-100">
+              <Text className="text-primary-600 font-bold text-[10px] tracking-widest uppercase">{SAVED_PROPS.length} ITEMS</Text>
             </View>
           </View>
           
           {SAVED_PROPS.map((item, index) => (
-             <PropertyCard key={item.id} {...item} index={index} tag={`${item.price}/yr`} />
+             <PropertyCard key={item.id} {...item} index={index} />
           ))}
         </View>
       </ScrollView>

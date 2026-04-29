@@ -9,7 +9,7 @@ export default function HomeScreen() {
         </View>
         <View className="items-center">
           <Text className="text-3xl font-bold text-[#111827]">Home Screen</Text>
-          <Text className="text-neutral-500 mt-2">Welcome to RentDirect</Text>
+          <Text className="text-neutral-500 mt-2">Welcome to Homelyn</Text>
         </View>
       </View>
     </View>

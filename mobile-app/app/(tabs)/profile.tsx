@@ -1,147 +1,97 @@
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
-import Animated, { FadeInDown, FadeInUp, withSpring, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import React from 'react';
+import { View, ScrollView } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PropertyCard } from '../../components/property-card';
-
-const { width } = Dimensions.get('window');
-
-const REVENUE_DATA = [
-  { month: 'JAN', val: 40 },
-  { month: 'FEB', val: 60 },
-  { month: 'MAR', val: 50 },
-  { month: 'APR', val: 80 },
-  { month: 'MAY', val: 95 },
-  { month: 'JUN', val: 100 }
-];
+import { authClient } from '../../lib/auth-client';
+import { router } from 'expo-router';
+import { Heading } from '../../components/ui/heading';
+import { Text } from '../../components/ui/text';
+import { Button, ButtonText } from '../../components/ui/button';
+import { Avatar, AvatarFallbackText } from '../../components/ui/avatar';
 
 const MY_PROPERTIES = [
-  { id: '1', title: 'Skyline View Penthouse', location: 'Banana Island, Lagos', price: 'N12M/yr', tag: 'OCCUPIED' },
-  { id: '2', title: 'Urban Studio Loft', location: 'Lekki Phase 1, Lagos', price: 'N3.5M/yr', tag: 'VACANT' },
-  { id: '3', title: 'Eco-Smart Duplex', location: 'Gwarinpa, Abuja', price: 'N7.2M/yr', tag: 'OCCUPIED' }
+  { id: '1', title: 'Skyline Penthouse', location: 'Banana Island', price: 'N12M', tag: 'OCCUPIED' },
+  { id: '2', title: 'Urban Studio', location: 'Lekki Phase 1', price: 'N3.5M', tag: 'VACANT' },
+  { id: '3', title: 'Eco-Smart Duplex', location: 'Gwarinpa', price: 'N7.2M', tag: 'OCCUPIED' }
 ];
 
 export default function LandlordDashboardScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F9FA]">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 150 }}>
-        {/* Top Header */}
+    <SafeAreaView className="flex-1 bg-background-0">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        {/* Header */}
         <View className="px-8 pt-8 pb-4 flex-row justify-between items-center">
-          <TouchableOpacity className="p-2">
-            <Text className="text-2xl">☰</Text>
-          </TouchableOpacity>
-          <Text className="text-[#006970] font-bold text-2xl italic">Property Hub</Text>
-          <TouchableOpacity className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-lg">
-             <View className="flex-1 bg-neutral-200" />
-          </TouchableOpacity>
+          <View>
+            <Heading size="2xl" className="text-typography-900">Welcome, Chidi</Heading>
+          </View>
+          <Avatar size="md" className="bg-primary-500 shadow-sm border-2 border-background-0">
+            <AvatarFallbackText className="text-typography-0">C</AvatarFallbackText>
+          </Avatar>
         </View>
 
-        {/* Welcome Block */}
-        <View className="px-8 mt-6">
-          <Text className="text-neutral-400 font-bold text-[10px] uppercase tracking-[4px] mb-2 font-body">DASHBOARD</Text>
-          <Text className="text-4xl font-bold text-[#111827] mb-8 font-heading">Welcome back, Chidi</Text>
-        </View>
-
-        {/* Revenue Card */}
+        {/* Revenue - Premium */}
         <Animated.View 
-          entering={FadeInDown.duration(800)}
-          className="mx-8 bg-[#006970] rounded-[2.5rem] p-10 shadow-xl shadow-[#006970]/30 overflow-hidden relative"
+          entering={FadeInDown.duration(600)}
+          className="mx-8 bg-primary-500 rounded-[32px] p-6 mt-4 shadow-lg shadow-primary-500/30"
         >
-          <View className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -m-20" />
-          <Text className="text-white/60 font-medium text-lg mb-2">Monthly Revenue</Text>
-          <Text className="text-white text-6xl font-bold mb-6 tracking-tight">N5.8M</Text>
-          <View className="bg-white/10 self-start px-6 py-3 rounded-full flex-row items-center backdrop-blur-xl border border-white/10">
-             <Text className="text-white mr-2">↗</Text>
-             <Text className="text-white font-bold text-xs tracking-widest">+12.5% from last month</Text>
+          <Text size="xs" className="text-typography-0/70 uppercase tracking-widest font-bold mb-2">Revenue</Text>
+          <Heading size="3xl" className="text-typography-0 mb-6 leading-tight">N5.8M</Heading>
+          <View className="flex-row gap-8 bg-primary-600/50 px-5 py-4 rounded-2xl border border-primary-400/30">
+            <View>
+              <Text size="xs" className="text-typography-0/70 uppercase tracking-wider font-bold mb-1">Listings</Text>
+              <Text size="xl" className="text-typography-0 font-bold">14</Text>
+            </View>
+            <View className="w-[1px] h-full bg-primary-400/30" />
+            <View>
+              <Text size="xs" className="text-typography-0/70 uppercase tracking-wider font-bold mb-1">Inquiries</Text>
+              <Text size="xl" className="text-typography-0 font-bold">38</Text>
+            </View>
           </View>
         </Animated.View>
 
-        {/* Stats Row */}
-        <View className="mx-8 mt-10 flex-row gap-6">
-           <Animated.View entering={FadeInDown.delay(200)} className="flex-1 bg-white p-8 rounded-[2.5rem] shadow-sm border border-neutral-100">
-             <View className="w-12 h-12 bg-[#006970]/10 rounded-2xl items-center justify-center mb-6">
-               <Text className="text-xl">🏢</Text>
-             </View>
-             <Text className="text-neutral-400 font-bold text-[10px] uppercase tracking-widest mb-2">ACTIVE LISTINGS</Text>
-             <Text className="text-4xl font-bold text-[#111827]">14</Text>
-           </Animated.View>
-           <Animated.View entering={FadeInDown.delay(300)} className="flex-1 bg-white p-8 rounded-[2.5rem] shadow-sm border border-neutral-100">
-             <View className="w-12 h-12 bg-[#006970]/10 rounded-2xl items-center justify-center mb-6">
-               <Text className="text-xl">💬</Text>
-             </View>
-             <Text className="text-neutral-400 font-bold text-[10px] uppercase tracking-widest mb-2">TENANT INQUIRIES</Text>
-             <Text className="text-4xl font-bold text-[#111827]">38</Text>
-           </Animated.View>
-        </View>
-
-        {/* Revenue Trend Chart */}
-        <View className="mx-8 mt-12 bg-[#F3F4F5] p-10 rounded-[2.5rem] shadow-sm overflow-hidden border border-neutral-100 relative">
-          <View className="flex-row justify-between items-center mb-10">
-             <Text className="text-2xl font-bold text-[#111827]">Revenue Trend</Text>
-             <View className="bg-[#D1E9FF] px-4 py-2 rounded-full">
-               <Text className="text-[#006970] font-bold text-[10px] tracking-widest uppercase">LAST 6 MONTHS</Text>
-             </View>
-          </View>
-          
-          <View className="flex-row items-end justify-between h-48 px-2">
-             {REVENUE_DATA.map((item, index) => (
-                <View key={item.month} className="items-center w-10">
-                  <Animated.View 
-                    entering={FadeInUp.delay(index * 100).duration(1000)}
-                    style={{ height: `${item.val}%` }} 
-                    className={`w-full rounded-2xl mb-4 ${index === 5 ? 'bg-[#00535b]' : 'bg-[#006970]/40'}`} 
-                  />
-                  <Text className="text-neutral-400 font-bold text-[10px] tracking-widest uppercase">{item.month}</Text>
-                </View>
-             ))}
-          </View>
-          {/* Tooltip mockup */}
-          <View className="absolute top-28 right-12 bg-black/80 px-4 py-2 rounded-xl">
-             <Text className="text-white font-bold text-[10px]">N5.8M</Text>
-          </View>
-        </View>
-
-        {/* My Properties List */}
-        <View className="mx-8 mt-12">
-          <View className="flex-row justify-between items-center mb-8">
-            <Text className="text-3xl font-bold text-[#111827]">My Properties</Text>
-            <TouchableOpacity>
-               <Text className="text-[#006970] font-bold">View All</Text>
-            </TouchableOpacity>
+        {/* Properties List */}
+        <View className="mx-8 mt-10">
+          <View className="flex-row justify-between items-center mb-6">
+            <Heading size="xl" className="text-typography-900">My Properties</Heading>
+            <View className="bg-primary-50 px-3 py-1.5 rounded-full border border-primary-100">
+              <Text className="text-primary-600 font-bold text-[10px] tracking-widest uppercase">{MY_PROPERTIES.length} LISTED</Text>
+            </View>
           </View>
           
           {MY_PROPERTIES.map((prop, index) => (
              <Animated.View 
                 key={prop.id}
-                entering={FadeInDown.delay(index * 100).duration(800)}
-                className="bg-white p-2 rounded-[2.5rem] mb-6 flex-row items-center border border-neutral-100 shadow-sm"
+                entering={FadeInDown.delay(index * 100).duration(400)}
+                className="bg-background-50 p-4 rounded-3xl mb-4 flex-row items-center border border-outline-100 shadow-sm"
              >
-                <View className="w-32 h-32 bg-neutral-200 rounded-[2rem] overflow-hidden m-2 relative">
-                   <View className="flex-1 bg-[#006970]/30" />
-                   <View className={`absolute top-2 left-2 px-3 py-1.5 rounded-full ${prop.tag === 'OCCUPIED' ? 'bg-[#006970]' : 'bg-[#D1E0E0]'}`}>
-                      <Text className={`font-bold text-[10px] tracking-widest ${prop.tag === 'OCCUPIED' ? 'text-white' : 'text-[#006970]'}`}>{prop.tag}</Text>
-                   </View>
+                <View className="w-16 h-16 bg-primary-100 rounded-2xl items-center justify-center mr-4">
+                   <Text size="2xs" className="text-primary-600 font-bold uppercase">{prop.tag === 'VACANT' ? 'OPEN' : 'RENT'}</Text>
                 </View>
-                <View className="flex-1 p-4">
-                   <Text className="text-xl font-bold text-[#111827] mb-1">{prop.title}</Text>
-                   <Text className="text-neutral-400 text-xs mb-2">📍 {prop.location}</Text>
-                   <Text className="text-[#006970] font-bold text-lg">{prop.price}</Text>
+                <View className="flex-1">
+                   <Text size="sm" className="text-typography-900 font-bold mb-1">{prop.title}</Text>
+                   <Text size="xs" className="text-typography-500">{prop.location}</Text>
                 </View>
-                <TouchableOpacity className="p-6">
-                   <Text className="text-2xl text-neutral-300">❯</Text>
-                </TouchableOpacity>
+                <Text size="sm" className="text-primary-500 font-bold">{prop.price}</Text>
              </Animated.View>
           ))}
         </View>
-      </ScrollView>
 
-      {/* Floating Add Button */}
-      <TouchableOpacity 
-        activeOpacity={0.9}
-        className="absolute bottom-32 right-8 w-20 h-20 bg-[#00535b] rounded-[2rem] items-center justify-center shadow-xl shadow-[#00535b]/40"
-      >
-        <Text className="text-white text-4xl">+</Text>
-      </TouchableOpacity>
+        {/* Sign Out - Upgraded */}
+        <View className="mx-8 mt-10 mb-6">
+           <Button 
+             size="lg"
+             variant="outline" 
+             action="negative" 
+             className="rounded-2xl border-error-200 bg-error-50"
+             onPress={async () => {
+               await authClient.signOut();
+               router.replace('/login');
+             }}
+           >
+             <ButtonText className="text-error-600 font-bold text-sm tracking-wide">Sign Out</ButtonText>
+           </Button>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

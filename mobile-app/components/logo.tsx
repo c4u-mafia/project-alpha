@@ -18,8 +18,8 @@ export const Logo = ({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) => {
           <View className="w-[45%] h-[20%] bg-white m-0.5" />
         </View>
       </View>
-      <Text className={`${textSize} font-bold text-white tracking-tight`}>
-        RentDirect
+      <Text className={`${textSize} font-bold text-primary-500 tracking-tight`}>
+        Homelyn
       </Text>
     </View>
   );

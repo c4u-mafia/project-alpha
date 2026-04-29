@@ -13,7 +13,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "RentDirect - Curating the Urban Nigerian Experience",
+        title: "Homelyn - Curating the Urban Nigerian Experience",
       },
       {
         name: "description",
@@ -48,7 +48,7 @@ import { ThemeProvider } from "../components/theme-provider"
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="rentdirect-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="homelyn-ui-theme">
       <html lang="en">
         <head>
           <HeadContent />

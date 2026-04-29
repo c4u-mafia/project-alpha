@@ -5,7 +5,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-md transition-colors duration-500">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-8">
         <div className="text-2xl font-extrabold tracking-tight text-primary font-heading">
-          RentDirect
+          Homelyn
         </div>
         <div className="hidden items-center space-x-8 font-semibold md:flex font-heading">
           <a href="#properties" className="border-b-2 border-primary pb-1 text-primary">

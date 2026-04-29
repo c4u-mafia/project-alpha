@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Dimensions, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Dimensions, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -9,6 +9,10 @@ import Animated, {
 import { authClient } from '../lib/auth-client';
 import { router } from 'expo-router';
 import { useGlobalStore } from '../store/global-store';
+import { Heading } from './ui/heading';
+import { Text as GluestackText } from './ui/text';
+import { Input, InputField, InputSlot } from './ui/input';
+import { Button, ButtonText, ButtonSpinner } from './ui/button';
 
 const { width } = Dimensions.get('window');
 
@@ -28,7 +32,7 @@ export const SignupScreen = () => {
   };
 
   useEffect(() => {
-    toggleTranslateX.value = withSpring(role === 'tenant' ? 0 : (width - 64) / 2 - 4);
+    toggleTranslateX.value = withSpring(role === 'tenant' ? 0 : (width - 48) / 2 - 4);
   }, [role]);
 
   const toggleStyle = useAnimatedStyle(() => ({
@@ -43,8 +47,8 @@ export const SignupScreen = () => {
         email,
         password,
         name,
-        role, // Send role for our backend auth hook
-      } as any); // Cast as any because role is an additionalField
+        role,
+      } as any);
       
       if (error) {
         setErrorMsg(error.message || 'Signup failed');
@@ -73,128 +77,134 @@ export const SignupScreen = () => {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-white"
+      className="flex-1 bg-background-0"
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <View className="flex-1 px-8 pt-20 pb-12">
-          {/* Logo Header */}
-          <Animated.View entering={FadeInDown.delay(100).duration(800)} className="items-center mb-8">
-            <Text className="text-[#006970] font-bold text-3xl mb-2 italic">Homelyn</Text>
-            <Text className="text-4xl font-bold text-[#111827] mb-2">Create Account</Text>
-            <Text className="text-neutral-500 text-lg leading-relaxed text-center px-4">
-              Join the new standard of living.
-            </Text>
+        <View className="flex-1 px-5 pt-12 pb-6">
+          {/* Header */}
+          <Animated.View entering={FadeInDown.delay(100).duration(600)} className="items-center mb-6">
+            <Heading size="sm" className="text-primary-500 font-bold mb-2 italic">Homelyn</Heading>
+            <Heading size="md" className="text-typography-900 mb-1">Create Account</Heading>
+            <GluestackText size="sm" className="text-typography-500 text-center px-4">
+              Join the new standard
+            </GluestackText>
           </Animated.View>
 
           {/* Role Toggle */}
-          <Animated.View entering={FadeInDown.delay(200).duration(800)} className="bg-[#F3F4F6] rounded-3xl p-1 mb-8 flex-row relative h-16 items-center">
+          <Animated.View entering={FadeInDown.delay(200).duration(600)} className="bg-background-100 rounded-xl p-1 mb-5 flex-row relative h-10 items-center">
             <Animated.View 
               style={[toggleStyle]} 
-              className="absolute left-1 h-[85%] w-[48.5%] bg-white rounded-2xl shadow-sm" 
+              className="absolute left-1 h-[85%] w-[48.5%] bg-background-0 rounded-lg shadow-sm" 
             />
             <TouchableOpacity 
               onPress={() => handleToggle('tenant')}
               className="flex-1 items-center justify-center"
             >
-              <Text className={`font-bold ${role === 'tenant' ? 'text-[#006970]' : 'text-neutral-400'}`}>Tenant</Text>
+              <GluestackText size="sm" className={`font-bold ${role === 'tenant' ? 'text-primary-500' : 'text-typography-400'}`}>Tenant</GluestackText>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={() => handleToggle('landlord')}
               className="flex-1 items-center justify-center"
             >
-              <Text className={`font-bold ${role === 'landlord' ? 'text-[#006970]' : 'text-neutral-400'}`}>Landlord</Text>
+              <GluestackText size="sm" className={`font-bold ${role === 'landlord' ? 'text-primary-500' : 'text-typography-400'}`}>Landlord</GluestackText>
             </TouchableOpacity>
           </Animated.View>
 
-          {/* Form Fields */}
-          <Animated.View entering={FadeInDown.delay(300).duration(800)} className="gap-5">
-            {errorMsg ? <Text className="text-red-500 text-center font-bold">{errorMsg}</Text> : null}
+          {/* Form */}
+          <Animated.View entering={FadeInDown.delay(300).duration(600)} className="gap-3">
+            {errorMsg ? <GluestackText size="sm" className="text-error-500 text-center font-bold">{errorMsg}</GluestackText> : null}
             
             <View>
-              <Text className="text-neutral-400 font-bold text-xs uppercase mb-2 ml-2 tracking-widest">Full Name</Text>
-              <View className="bg-[#F3F4F6] p-4 rounded-3xl flex-row items-center">
-                 <Text className="text-neutral-400 mr-4">👤</Text>
-                 <TextInput 
+              <GluestackText size="2xs" className="text-typography-400 font-bold uppercase tracking-wider mb-1 ml-1">Name</GluestackText>
+              <Input variant="rounded" size="md" className="bg-background-100 border-0 h-11">
+                 <InputSlot className="pl-3">
+                   <GluestackText size="sm" className="text-typography-400">👤</GluestackText>
+                 </InputSlot>
+                 <InputField 
                    placeholder="John Doe" 
                    value={name}
                    onChangeText={setName}
-                   className="flex-1 text-lg font-medium"
+                   className="text-sm"
                    placeholderTextColor="#A3A3A3"
                  />
-              </View>
+              </Input>
             </View>
 
             <View>
-              <Text className="text-neutral-400 font-bold text-xs uppercase mb-2 ml-2 tracking-widest">Email Address</Text>
-              <View className="bg-[#F3F4F6] p-4 rounded-3xl flex-row items-center">
-                 <Text className="text-neutral-400 mr-4">✉</Text>
-                 <TextInput 
+              <GluestackText size="2xs" className="text-typography-400 font-bold uppercase tracking-wider mb-1 ml-1">Email</GluestackText>
+              <Input variant="rounded" size="md" className="bg-background-100 border-0 h-11">
+                 <InputSlot className="pl-3">
+                   <GluestackText size="sm" className="text-typography-400">✉</GluestackText>
+                 </InputSlot>
+                 <InputField 
                    placeholder="name@company.com" 
                    value={email}
                    onChangeText={setEmail}
                    autoCapitalize="none"
                    keyboardType="email-address"
-                   className="flex-1 text-lg font-medium"
+                   className="text-sm"
                    placeholderTextColor="#A3A3A3"
                  />
-              </View>
+              </Input>
             </View>
 
             <View>
-              <Text className="text-neutral-400 font-bold text-xs uppercase mb-2 ml-2 tracking-widest">Password</Text>
-              <View className="bg-[#F3F4F6] p-4 rounded-3xl flex-row items-center">
-                 <Text className="text-neutral-400 mr-4">🔒</Text>
-                 <TextInput 
+              <GluestackText size="2xs" className="text-typography-400 font-bold uppercase tracking-wider mb-1 ml-1">Password</GluestackText>
+              <Input variant="rounded" size="md" className="bg-background-100 border-0 h-11">
+                 <InputSlot className="pl-3">
+                   <GluestackText size="sm" className="text-typography-400">🔒</GluestackText>
+                 </InputSlot>
+                 <InputField 
                    placeholder="••••••••" 
                    value={password}
                    onChangeText={setPassword}
                    secureTextEntry={!showPassword}
-                   className="flex-1 text-lg font-medium"
+                   className="text-sm"
                    placeholderTextColor="#A3A3A3"
                  />
-                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                    <Text className="text-neutral-400">👁</Text>
-                 </TouchableOpacity>
-              </View>
+                 <InputSlot className="pr-3" onPress={() => setShowPassword(!showPassword)}>
+                    <GluestackText size="sm" className="text-typography-400">👁</GluestackText>
+                 </InputSlot>
+              </Input>
             </View>
           </Animated.View>
 
           {/* Signup Button */}
-          <Animated.View entering={FadeInDown.delay(400).duration(800)} className="mt-8">
-            <TouchableOpacity 
+          <Animated.View entering={FadeInDown.delay(400).duration(600)} className="mt-6">
+            <Button 
+              size="lg"
               onPress={handleSignup}
-              disabled={loading}
-              activeOpacity={0.8}
-              className="bg-[#006970] py-5 rounded-3xl items-center shadow-lg shadow-[#006970]/30"
+              isDisabled={loading}
+              className="bg-primary-500 rounded-xl"
             >
-              {loading ? <ActivityIndicator color="#ffffff" /> : <Text className="text-white font-bold text-xl">Sign up</Text>}
-            </TouchableOpacity>
+              {loading ? <ButtonSpinner color="#ffffff" /> : <ButtonText className="text-typography-0 font-bold text-sm">Sign Up</ButtonText>}
+            </Button>
           </Animated.View>
 
           {/* Divider */}
-          <View className="my-8 flex-row items-center justify-center">
-            <View className="h-[1px] bg-neutral-200 flex-1 mx-4" />
-            <Text className="text-neutral-400 font-bold text-[10px] tracking-widest uppercase">Or continue with</Text>
-            <View className="h-[1px] bg-neutral-200 flex-1 mx-4" />
+          <View className="my-6 flex-row items-center justify-center">
+            <View className="h-[1px] bg-outline-200 flex-1 mx-4" />
+            <GluestackText size="2xs" className="text-typography-400 font-bold uppercase tracking-wider">Or</GluestackText>
+            <View className="h-[1px] bg-outline-200 flex-1 mx-4" />
           </View>
 
-          {/* Social Buttons */}
-          <View className="flex-row gap-4 mb-8">
-            <TouchableOpacity onPress={handleGoogleSignup} className="flex-1 flex-row items-center justify-center border border-neutral-100 py-4 rounded-3xl">
-              <Text className="mr-2">G</Text>
-              <Text className="font-bold">Google</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="flex-1 flex-row items-center justify-center border border-neutral-100 py-4 rounded-3xl">
-              <Text className="mr-2"></Text>
-              <Text className="font-bold">Apple</Text>
-            </TouchableOpacity>
+          {/* Social */}
+          <View className="flex-row gap-3 mb-6">
+            <Button size="lg" variant="outline" onPress={handleGoogleSignup} className="flex-1 border-outline-200 rounded-xl">
+              <GluestackText size="sm" className="mr-1">G</GluestackText>
+              <ButtonText className="text-typography-700 font-bold text-sm">Google</ButtonText>
+            </Button>
+            <Button size="lg" variant="outline" className="flex-1 border-outline-200 rounded-xl">
+              <GluestackText size="sm" className="mr-1"></GluestackText>
+              <ButtonText className="text-typography-700 font-bold text-sm">Apple</ButtonText>
+            </Button>
           </View>
 
           {/* Footer */}
-          <View className="items-center flex-row justify-center mb-8">
-            <Text className="text-neutral-500 font-medium">Already have an account? </Text>
+          <View className="items-center flex-row justify-center">
+            <GluestackText size="sm" className="text-typography-500">Have account? </GluestackText>
             <TouchableOpacity onPress={() => router.back()}>
-              <Text className="text-[#006970] font-bold">Log in</Text>
+              <GluestackText size="sm" className="text-primary-500 font-bold">Sign in</GluestackText>
             </TouchableOpacity>
           </View>
         </View>

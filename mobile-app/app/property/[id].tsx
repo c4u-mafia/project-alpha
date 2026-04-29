@@ -68,7 +68,7 @@ export default function PropertyDetailsScreen() {
              </View>
              <View className="flex-1">
                <Text className="font-bold text-lg text-[#004D53]">No Hidden Fees Guarantee</Text>
-               <Text className="text-[#006970]/80">All costs are upfront and verified by RentDirect.</Text>
+               <Text className="text-[#006970]/80">All costs are upfront and verified by Homelyn.</Text>
              </View>
           </View>
 
@@ -133,7 +133,7 @@ export default function PropertyDetailsScreen() {
         <TouchableOpacity onPress={() => router.back()}>
            <Text className="text-xl">←</Text>
         </TouchableOpacity>
-        <Text className="text-[#006970] font-bold text-xl italic">RentDirect</Text>
+        <Text className="text-[#006970] font-bold text-xl italic">Homelyn</Text>
         <TouchableOpacity>
            <Text className="text-xl">📤</Text>
         </TouchableOpacity>
