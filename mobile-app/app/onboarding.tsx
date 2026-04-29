@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { Onboarding } from '../components/onboarding';
+import { Onboarding } from "@/components/onboarding";
 
 export default function OnboardingPage() {
   const router = useRouter();
