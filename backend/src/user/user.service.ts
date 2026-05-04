@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
+import { db } from '../db';
+import { user, userProfile, tenantProfile, landlordProfile } from '../db/schema';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+  async getMe(userId: string) {
+    const [foundUser] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
 
-  findAll() {
-    return `This action returns all user`;
-  }
+    if (!foundUser) throw new NotFoundException('User not found.');
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+    const [profile] = await db
+      .select()
+      .from(userProfile)
+      .where(eq(userProfile.userId, userId))
+      .limit(1);
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+    const roleProfile =
+      foundUser.role === 'tenant'
+        ? await db
+            .select()
+            .from(tenantProfile)
+            .where(eq(tenantProfile.userId, userId))
+            .limit(1)
+            .then((r) => r[0] ?? null)
+        : foundUser.role === 'landlord'
+          ? await db
+              .select()
+              .from(landlordProfile)
+              .where(eq(landlordProfile.userId, userId))
+              .limit(1)
+              .then((r) => r[0] ?? null)
+          : null;
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    return {
+      id: foundUser.id,
+      name: foundUser.name,
+      email: foundUser.email,
+      emailVerified: foundUser.emailVerified,
+      image: foundUser.image,
+      role: foundUser.role,
+      createdAt: foundUser.createdAt,
+      profile: profile ?? null,
+      roleProfile,
+    };
   }
 }

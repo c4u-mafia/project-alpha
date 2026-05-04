@@ -1,4 +1,3 @@
-import { relations } from 'drizzle-orm';
 import {
   boolean,
   index,
@@ -60,12 +59,8 @@ export const account = pgTable(
     providerId: text('provider_id').notNull(),
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
-    accessTokenExpiresAt: timestamp('access_token_expires_at', {
-      withTimezone: true,
-    }),
-    refreshTokenExpiresAt: timestamp('refresh_token_expires_at', {
-      withTimezone: true,
-    }),
+    accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
+    refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
     scope: text('scope'),
     idToken: text('id_token'),
     password: text('password'),
@@ -73,10 +68,7 @@ export const account = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex('account_provider_account_unique').on(
-      table.providerId,
-      table.accountId,
-    ),
+    uniqueIndex('account_provider_account_unique').on(table.providerId, table.accountId),
     index('account_user_id_idx').on(table.userId),
   ],
 );
@@ -97,32 +89,7 @@ export const verification = pgTable(
   ],
 );
 
-export const userRelations = relations(user, ({ many }) => ({
-  accounts: many(account),
-  sessions: many(session),
-}));
-
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],
-    references: [user.id],
-  }),
-}));
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],
-    references: [user.id],
-  }),
-}));
-
-export const authSchema = {
-  user,
-  session,
-  account,
-  verification,
-};
+export const authSchema = { user, session, account, verification };
 
 export type AppRole = (typeof appRoleEnum.enumValues)[number];
-
 export const SELF_SERVE_ROLES = ['tenant', 'landlord'] as const satisfies readonly AppRole[];
