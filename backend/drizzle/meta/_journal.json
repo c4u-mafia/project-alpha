@@ -15,6 +15,13 @@
       "when": 1777903163132,
       "tag": "0001_nebulous_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777919042513,
+      "tag": "0003_hot_raider",
+      "breakpoints": true
     }
   ]
 }

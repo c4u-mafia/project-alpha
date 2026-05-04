@@ -11,18 +11,21 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '../db';
 import { SELF_SERVE_ROLES, type AppRole, authSchema, user } from '../db/schema';
+import { otpTemplate } from '../email/templates/otp.template';
+import { welcomeTemplate } from '../email/templates/welcome.template';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const EMAIL_FROM = process.env.EMAIL_FROM ?? 'Homelyn <noreply@koanprotocol.com>';
+const EMAIL_FROM =
+  process.env.EMAIL_FROM ?? 'Homelyn <noreply@koanprotocol.com>';
 
 const trustedOrigins = [
-  "Homelyn://",
-  "Homelyn-staging://",
-  "Homelyn://*",
-  "Homelyn-staging://*",
-  "exp://",
-  "exp://**",
-  "exp://192.168.*.*:*/**",
+  'Homelyn://',
+  'Homelyn-staging://',
+  'Homelyn://*',
+  'Homelyn-staging://*',
+  'exp://',
+  'exp://**',
+  'exp://192.168.*.*:*/**',
   process.env.WEB_ORIGIN,
   'http://localhost:3000',
   'http://localhost:3001',
@@ -34,23 +37,74 @@ const trustedOrigins = [
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-function isSelfServeRole(role: unknown): role is (typeof SELF_SERVE_ROLES)[number] {
+function isSelfServeRole(
+  role: unknown,
+): role is (typeof SELF_SERVE_ROLES)[number] {
   return (
     typeof role === 'string' &&
     (SELF_SERVE_ROLES as readonly string[]).includes(role)
   );
 }
 
-function assertSelfServeRole(role: unknown, message = 'Role must be tenant or landlord.') {
+function assertSelfServeRole(
+  role: unknown,
+  message = 'Role must be tenant or landlord.',
+) {
   if (!isSelfServeRole(role)) {
     throw new APIError('BAD_REQUEST', { message });
   }
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object'
+    ? (value as Record<string, unknown>)
+    : {};
 }
 
 async function findUserByEmail(email: string) {
   return db.query.user.findFirst({
     where: eq(user.email, email),
   });
+}
+
+function normalizeRole(role: unknown): AppRole | null {
+  return typeof role === 'string' &&
+    (['tenant', 'landlord', 'admin'] as readonly string[]).includes(role)
+    ? (role as AppRole)
+    : null;
+}
+
+async function sendWelcomeEmailOnce(createdUser: Record<string, unknown>) {
+  const userId = typeof createdUser.id === 'string' ? createdUser.id : null;
+  if (!userId) return;
+
+  const [foundUser] = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
+  if (!foundUser?.email || foundUser.welcomeEmailSentAt) return;
+
+  const { subject, html } = welcomeTemplate({
+    name: foundUser.name,
+    role: normalizeRole(foundUser.role),
+  });
+
+  const { error } = await resend.emails.send({
+    from: EMAIL_FROM,
+    to: foundUser.email,
+    subject,
+    html,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  await db
+    .update(user)
+    .set({ welcomeEmailSentAt: new Date(), updatedAt: new Date() })
+    .where(eq(user.id, userId));
 }
 
 const authConfig: BetterAuthOptions = {
@@ -106,11 +160,14 @@ const authConfig: BetterAuthOptions = {
         // Shorten to 1h + implement refresh if you add refresh token support later.
         expirationTime: '7d',
         // Only embed what the server actually needs — keeps token small for mobile bandwidth.
-        definePayload: async ({ user: u }) => ({
-          id: u.id,
-          email: u.email,
-          role: (u as { role?: string }).role ?? null,
-        }),
+        definePayload: ({ user: u }) => {
+          const sessionUser = asRecord(u);
+          return {
+            id: sessionUser.id,
+            email: sessionUser.email,
+            role: sessionUser.role ?? null,
+          };
+        },
       },
     }),
 
@@ -118,24 +175,12 @@ const authConfig: BetterAuthOptions = {
       overrideDefaultEmailVerification: true,
       sendVerificationOnSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
-        const subjects: Record<string, string> = {
-          'email-verification': 'Verify your Homelyn account',
-          'sign-in': 'Your Homelyn sign-in code',
-          'forget-password': 'Reset your Homelyn password',
-          'change-email': 'Confirm your new email',
-        };
-
+        const { subject, html } = otpTemplate(otp, type);
         await resend.emails.send({
           from: EMAIL_FROM,
           to: email,
-          subject: subjects[type] ?? 'Your Homelyn code',
-          html: `
-            <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
-              <h2 style="color:#1a1a1a">Your one-time code</h2>
-              <p style="font-size:32px;font-weight:700;letter-spacing:8px;color:#1a1a1a">${otp}</p>
-              <p style="color:#666;font-size:14px">Expires in 10 minutes. Do not share it with anyone.</p>
-            </div>
-          `,
+          subject,
+          html,
         });
       },
     }),
@@ -143,15 +188,17 @@ const authConfig: BetterAuthOptions = {
   ],
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      const body = asRecord(ctx.body as unknown);
+
       if (ctx.path === '/sign-up/email') {
         assertSelfServeRole(
-          ctx.body?.role,
+          body.role,
           'Choose either tenant or landlord when signing up.',
         );
       }
 
       if (ctx.path === '/sign-in/email-otp') {
-        const email = ctx.body?.email;
+        const email = body.email;
         if (typeof email !== 'string') {
           throw new APIError('BAD_REQUEST', { message: 'Email is required.' });
         }
@@ -159,7 +206,7 @@ const authConfig: BetterAuthOptions = {
         const existingUser = await findUserByEmail(email);
         if (!existingUser) {
           assertSelfServeRole(
-            ctx.body?.role,
+            body.role,
             'Choose either tenant or landlord before completing OTP signup.',
           );
         }
@@ -169,13 +216,17 @@ const authConfig: BetterAuthOptions = {
   databaseHooks: {
     user: {
       create: {
-        before: async (newUser) => {
+        before: (newUser) => {
+          const nextUser = asRecord(newUser);
           const nextRole =
-            typeof newUser.role === 'string' ? (newUser.role as AppRole) : null;
+            typeof nextUser.role === 'string'
+              ? (nextUser.role as AppRole)
+              : null;
 
           if (nextRole === 'admin') {
             throw new APIError('FORBIDDEN', {
-              message: 'Admin accounts cannot be created from public signup flows.',
+              message:
+                'Admin accounts cannot be created from public signup flows.',
             });
           }
 
@@ -185,12 +236,19 @@ const authConfig: BetterAuthOptions = {
             });
           }
 
-          return {
+          return Promise.resolve({
             data: {
-              ...newUser,
+              ...nextUser,
               role: nextRole,
             },
-          };
+          });
+        },
+        after: (createdUser) => {
+          void sendWelcomeEmailOnce(createdUser).catch((error: unknown) => {
+            console.error('Failed to send welcome email', error);
+          });
+
+          return Promise.resolve();
         },
       },
       update: {
