@@ -20,12 +20,26 @@ Homelyn backend — Nigerian rental platform API.
 **Auth routes** (sign-up, sign-in, OTP, OAuth) are documented separately by better-auth:
 ➜ [/api/auth/reference](/api/auth/reference)
 
-**How to authenticate here:**
-1. Sign up or sign in via the better-auth reference above.
-2. Get a JWT: \`GET /api/auth/token\` (requires active session cookie from sign-in).
-3. Click **Authorize** below → paste the JWT as a Bearer token.
-4. All protected routes will now work.
-      `.trim(),
+---
+
+**How to get a token and authenticate:**
+
+\`\`\`
+Step 1 — Open /api/auth/reference
+Step 2 — Sign up (POST /sign-up/email) or sign in (POST /sign-in/email)
+Step 3 — Call GET /api/auth/token  ← returns { token: "eyJ..." }
+Step 4 — Click Authorize (padlock icon) → paste the token → Authorize
+\`\`\`
+
+All routes marked with a padlock will now work with your token.
+The token is valid for **7 days**. Repeat step 2–4 when it expires.
+
+---
+
+**Mobile (Expo/React Native):**
+The \`@better-auth/expo\` client plugin stores the session token automatically in SecureStore.
+It sends \`Authorization: Bearer <token>\` on every request — no manual setup needed.
+    `.trim(),
     )
     .setVersion('0.1.0')
     .addBearerAuth(

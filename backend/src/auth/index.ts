@@ -4,7 +4,7 @@ import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import type { BetterAuthOptions } from 'better-auth';
 import { betterAuth } from 'better-auth';
-import { emailOTP, openAPI, jwt } from 'better-auth/plugins';
+import { bearer, emailOTP, jwt, openAPI } from 'better-auth/plugins';
 import { expo } from '@better-auth/expo';
 import { eq } from 'drizzle-orm';
 
@@ -87,7 +87,29 @@ const authConfig: BetterAuthOptions = {
       : undefined,
   plugins: [
     expo(),
-    jwt(),
+
+    // bearer() — makes auth.api.getSession() accept "Authorization: Bearer <token>"
+    // This is what enables JWT-based auth for mobile. Without this, only cookies work.
+    bearer(),
+
+    // jwt() — exposes GET /api/auth/token (returns a signed JWT from an active session)
+    //          and GET /api/auth/jwks (public key set for stateless verification).
+    // Mobile flow: sign-in → call /api/auth/token → store JWT → send as Bearer on every request.
+    // Swagger flow: sign-in via /api/auth/reference → GET /api/auth/token → paste JWT in Authorize.
+    jwt({
+      jwt: {
+        // 7 days is appropriate for mobile — avoids constant re-auth friction.
+        // Shorten to 1h + implement refresh if you add refresh token support later.
+        expirationTime: '7d',
+        // Only embed what the server actually needs — keeps token small for mobile bandwidth.
+        definePayload: async ({ user: u }) => ({
+          id: u.id,
+          email: u.email,
+          role: (u as { role?: string }).role ?? null,
+        }),
+      },
+    }),
+
     emailOTP({
       overrideDefaultEmailVerification: true,
       sendVerificationOnSignUp: true,
