@@ -6,10 +6,14 @@ import type { BetterAuthOptions } from 'better-auth';
 import { betterAuth } from 'better-auth';
 import { bearer, emailOTP, jwt, openAPI } from 'better-auth/plugins';
 import { expo } from '@better-auth/expo';
+import { Resend } from 'resend';
 import { eq } from 'drizzle-orm';
 
 import { db } from '../db';
 import { SELF_SERVE_ROLES, type AppRole, authSchema, user } from '../db/schema';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_FROM = process.env.EMAIL_FROM ?? 'Homelyn <noreply@koanprotocol.com>';
 
 const trustedOrigins = [
   "Homelyn://",
@@ -114,12 +118,25 @@ const authConfig: BetterAuthOptions = {
       overrideDefaultEmailVerification: true,
       sendVerificationOnSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
-        // TODO: plug your email provider in here.
-        // Example payload:
-        //   email -> recipient address
-        //   otp -> one-time passcode to deliver
-        //   type -> "sign-in" | "email-verification" | "forget-password" | "change-email"
-        console.log(`[auth:email-otp:${type}] send OTP ${otp} to ${email}`);
+        const subjects: Record<string, string> = {
+          'email-verification': 'Verify your Homelyn account',
+          'sign-in': 'Your Homelyn sign-in code',
+          'forget-password': 'Reset your Homelyn password',
+          'change-email': 'Confirm your new email',
+        };
+
+        await resend.emails.send({
+          from: EMAIL_FROM,
+          to: email,
+          subject: subjects[type] ?? 'Your Homelyn code',
+          html: `
+            <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+              <h2 style="color:#1a1a1a">Your one-time code</h2>
+              <p style="font-size:32px;font-weight:700;letter-spacing:8px;color:#1a1a1a">${otp}</p>
+              <p style="color:#666;font-size:14px">Expires in 10 minutes. Do not share it with anyone.</p>
+            </div>
+          `,
+        });
       },
     }),
     openAPI(),

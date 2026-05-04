@@ -5,14 +5,13 @@ import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { auth } from './auth';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RoleGuard } from './common/guards/role.guard';
+import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [AuthModule.forRoot({ auth }), UserModule],
+  imports: [AuthModule.forRoot({ auth, disableGlobalAuthGuard: true }), EmailModule, UserModule],
   providers: [
-    // AuthGuard runs first — validates session, attaches user to request
     { provide: APP_GUARD, useClass: AuthGuard },
-    // RoleGuard runs second — checks @Roles() decorator if present
     { provide: APP_GUARD, useClass: RoleGuard },
   ],
 })
