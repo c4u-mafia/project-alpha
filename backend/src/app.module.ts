@@ -10,6 +10,13 @@ import { UserModule } from './user/user.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { AdminModule } from './admin/admin.module';
 import { PropertyModule } from './property/property.module';
+import { ListingsModule } from './listings/listings.module';
+import { ViewingsModule } from './viewings/viewings.module';
+import { ApplicationsModule } from './applications/applications.module';
+import { PaymentsModule } from './payments/payments.module';
+import { TenancyModule } from './tenancy/tenancy.module';
+import { SponsorshipModule } from './sponsorship/sponsorship.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -19,6 +26,13 @@ import { PropertyModule } from './property/property.module';
     OnboardingModule,
     AdminModule,
     PropertyModule,
+    ListingsModule,
+    ViewingsModule,
+    ApplicationsModule,
+    PaymentsModule,
+    TenancyModule,
+    SponsorshipModule,
+    NotificationsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
