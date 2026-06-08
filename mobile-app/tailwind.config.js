@@ -15,10 +15,25 @@ module.exports = {
       pattern:
         /(bg|border|text|stroke|fill)-(primary|secondary|tertiary|error|success|warning|info|typography|outline|background|indicator)-(0|50|100|200|300|400|500|600|700|800|900|950|white|gray|black|error|warning|muted|success|info|light|dark|primary)/,
     },
+    'bg-sunbloom', 'text-sunbloom', 'border-sunbloom',
+    'bg-cream', 'text-cream', 'bg-charcoal', 'text-charcoal',
+    'bg-mint', 'text-mint',
+    'bg-health-green', 'text-health-green', 'border-health-green',
+    'bg-health-amber', 'text-health-amber', 'border-health-amber',
+    'bg-health-orange', 'text-health-orange', 'border-health-orange',
+    'bg-health-red', 'text-health-red', 'border-health-red',
   ],
   theme: {
     extend: {
       colors: {
+        sunbloom: '#F2A65A',
+        cream: '#FAF7F2',
+        charcoal: '#1A2332',
+        mint: '#D4EDE6',
+        'health-green': '#1E9E5C',
+        'health-amber': '#E89B2C',
+        'health-orange': '#E2683C',
+        'health-red': '#D54545',
         primary: {
           0: 'rgb(var(--color-primary-0)/<alpha-value>)',
           50: 'rgb(var(--color-primary-50)/<alpha-value>)',

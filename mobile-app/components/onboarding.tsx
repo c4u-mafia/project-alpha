@@ -1,103 +1,165 @@
-import React, { memo, useState } from 'react';
-import { View, Dimensions, SafeAreaView } from 'react-native';
-import Animated, { FadeInRight, FadeInDown, FadeOutLeft } from 'react-native-reanimated';
+import React, { memo, useRef, useState } from 'react';
+import { View, Dimensions, FlatList, TouchableOpacity, StatusBar } from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { Text } from './ui/text';
-import { Heading } from './ui/heading';
 import { Button, ButtonText } from './ui/button';
+import { router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
-const STEPS = [
+const SLIDES = [
   {
-    id: 1,
-    title: 'No Agents,\nNo Hassle.',
-    description: "We've cut out the middleman. Chat directly with landlords and close deals in minutes, not days.",
-    tagline: 'DIRECT TO LANDLORD',
+    id: '1',
+    emoji: '🏠',
+    badge: 'DIRECT TO LANDLORD',
+    title: 'Find homes from\nreal landlords.',
+    description:
+      "No agents, no hidden fees. Connect directly with verified landlords and close a deal in days, not weeks.",
+    bg: '#0E7C7B',
+    accent: '#D4EDE6',
   },
   {
-    id: 2,
-    title: 'Verified\nListings Only.',
-    description: 'What you see is what you get. Every home is physically inspected for 100% authenticity.',
-    tagline: 'VERIFIED',
+    id: '2',
+    emoji: '💳',
+    badge: 'SMART PAYMENTS',
+    title: 'Pay rent the\nsmart way.',
+    description:
+      "Securely pay rent, track your payment history, and get reminders before your next due date — all in one place.",
+    bg: '#1A2332',
+    accent: '#F2A65A',
+  },
+  {
+    id: '3',
+    emoji: '🤝',
+    badge: 'RENT SPONSORSHIP',
+    title: 'Family can help.\nLet them.',
+    description:
+      "Create a rent goal and share a link. Friends and family can contribute directly — anonymously or openly.",
+    bg: '#0E7C7B',
+    accent: '#D4EDE6',
   },
 ];
 
 export const Onboarding = memo(({ onFinish }: { onFinish: () => void }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+
+  const handleScroll = (e: any) => {
+    const idx = Math.round(e.nativeEvent.contentOffset.x / width);
+    setActiveIndex(idx);
+  };
 
   const handleNext = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
+    if (activeIndex < SLIDES.length - 1) {
+      flatListRef.current?.scrollToIndex({ index: activeIndex + 1, animated: true });
     } else {
       onFinish();
     }
   };
 
-  const step = STEPS[currentStep];
+  const slide = SLIDES[activeIndex];
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0">
-      <View className="flex-1 px-8 pt-12 pb-8">
-        
-        {/* Header */}
-        <View className="flex-row items-center justify-between mb-12">
-          <Heading size="md" className="text-primary-500 italic font-bold">Homelyn</Heading>
-          <Text className="text-typography-400 font-bold text-[10px] uppercase tracking-widest">
-            Step {currentStep + 1} of 2
-          </Text>
-        </View>
+    <View className="flex-1" style={{ backgroundColor: slide.bg }}>
+      <StatusBar barStyle="light-content" backgroundColor={slide.bg} />
 
-        {/* Content */}
-        <View className="flex-1 justify-center pb-20">
-          <Animated.View 
-            key={currentStep}
-            entering={FadeInRight.duration(400).springify()}
-            exiting={FadeOutLeft.duration(300)}
-            className="items-start"
-          >
-            <View className="bg-primary-50 px-3 py-1.5 rounded-full mb-6 border border-primary-100">
-              <Text className="text-primary-600 font-bold text-[9px] tracking-widest uppercase">
-                {step.tagline}
+      {/* Slides */}
+      <FlatList
+        ref={flatListRef}
+        data={SLIDES}
+        keyExtractor={(item) => item.id}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleScroll}
+        renderItem={({ item }) => (
+          <View style={{ width }} className="px-8 pt-20 pb-4">
+            <Animated.View entering={FadeIn.duration(500)} className="flex-1 justify-center pb-16">
+              {/* Illustration */}
+              <View
+                className="w-32 h-32 rounded-3xl items-center justify-center mb-10"
+                style={{ backgroundColor: `${item.accent}20` }}
+              >
+                <Text style={{ fontSize: 56 }}>{item.emoji}</Text>
+              </View>
+
+              {/* Badge */}
+              <View
+                className="self-start px-3 py-1.5 rounded-full mb-5"
+                style={{ backgroundColor: `${item.accent}25` }}
+              >
+                <Text
+                  className="text-[10px] font-bold tracking-widest"
+                  style={{ color: item.accent, fontFamily: 'Geist_700Bold' }}
+                >
+                  {item.badge}
+                </Text>
+              </View>
+
+              {/* Title */}
+              <Text
+                className="text-white text-[34px] leading-[42px] mb-4"
+                style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}
+              >
+                {item.title}
               </Text>
-            </View>
-            
-            <Heading size="3xl" className="text-typography-900 leading-[40px] mb-4">
-              {step.title}
-            </Heading>
-            
-            <Text className="text-typography-500 text-sm leading-relaxed pr-8">
-              {step.description}
-            </Text>
-          </Animated.View>
+
+              {/* Description */}
+              <Text
+                className="text-white/60 text-[15px] leading-6 pr-6"
+                style={{ fontFamily: 'Geist_400Regular' }}
+              >
+                {item.description}
+              </Text>
+            </Animated.View>
+          </View>
+        )}
+      />
+
+      {/* Footer */}
+      <Animated.View entering={FadeInDown.delay(200).duration(600)} className="px-8 pb-12">
+        {/* Dots */}
+        <View className="flex-row justify-center gap-2 mb-8">
+          {SLIDES.map((_, i) => (
+            <View
+              key={i}
+              style={{
+                width: i === activeIndex ? 28 : 8,
+                height: 8,
+                borderRadius: 999,
+                backgroundColor: i === activeIndex ? 'white' : 'rgba(255,255,255,0.25)',
+              }}
+            />
+          ))}
         </View>
 
-        {/* Footer Actions */}
-        <Animated.View entering={FadeInDown.delay(200).duration(600)} className="gap-4">
-          <View className="flex-row justify-center gap-2 mb-6">
-            {STEPS.map((_, index) => (
-              <View 
-                key={index} 
-                className={`h-1.5 rounded-full ${index === currentStep ? 'w-8 bg-primary-500' : 'w-2 bg-outline-200'}`}
-              />
-            ))}
-          </View>
-
-          <Button 
-            size="lg" 
-            onPress={handleNext}
-            className="bg-primary-500 rounded-2xl shadow-sm w-full"
+        {/* CTA */}
+        <Button
+          size="lg"
+          onPress={handleNext}
+          className="bg-white rounded-2xl mb-3"
+          style={{ height: 54 }}
+        >
+          <ButtonText
+            className="text-[#0E7C7B] text-base"
+            style={{ fontFamily: 'Geist_700Bold' }}
           >
-            <ButtonText className="text-typography-0 font-bold text-base">
-              {currentStep === STEPS.length - 1 ? "Continue" : "Next"}
-            </ButtonText>
-          </Button>
-          
-          <Button size="lg" variant="link" onPress={onFinish} className="w-full">
-            <ButtonText className="text-typography-400 font-medium text-sm">Skip</ButtonText>
-          </Button>
-        </Animated.View>
-        
-      </View>
-    </SafeAreaView>
+            {activeIndex === SLIDES.length - 1 ? 'Get Started' : 'Continue'}
+          </ButtonText>
+        </Button>
+
+        <TouchableOpacity
+          onPress={() => router.push('/login')}
+          className="items-center py-3"
+        >
+          <Text
+            className="text-white/60 text-sm"
+            style={{ fontFamily: 'Geist_400Regular' }}
+          >
+            I already have an account
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 });

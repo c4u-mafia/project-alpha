@@ -6,7 +6,7 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   const handleFinish = useCallback(() => {
-    router.replace('/login');
+    router.replace('/role-select');
   }, [router]);
 
   return <Onboarding onFinish={handleFinish} />;
