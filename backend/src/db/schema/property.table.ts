@@ -130,7 +130,28 @@ export const propertyPhoto = pgTable(
   ],
 );
 
+export const savedListing = pgTable(
+  'saved_listing',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    propertyId: text('property_id')
+      .notNull()
+      .references(() => property.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('saved_listing_user_id_idx').on(table.userId),
+    index('saved_listing_property_id_idx').on(table.propertyId),
+  ],
+);
+
 export type Property = typeof property.$inferSelect;
 export type NewProperty = typeof property.$inferInsert;
 export type PropertyPhoto = typeof propertyPhoto.$inferSelect;
 export type NewPropertyPhoto = typeof propertyPhoto.$inferInsert;
+export type SavedListing = typeof savedListing.$inferSelect;
