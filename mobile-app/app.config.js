@@ -58,7 +58,9 @@ module.exports = {
       backgroundColor: '#ffffff',
     },
     package: appPackage,
-    usesCleartextTraffic: IS_DEV, // allow http:// only in dev
+    usesCleartextTraffic: IS_DEV,
+    // arm64-v8a only — cuts APK size ~60% vs universal. Covers all modern Android (2017+).
+    supportedCpuArchitectures: IS_DEV ? undefined : ['arm64-v8a'],
   },
   extra: {
     apiUrl,

@@ -21,7 +21,8 @@
         "APP_VARIANT": "preview"
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "ccache": true
       }
     },
     "production": {
@@ -30,7 +31,8 @@
         "APP_VARIANT": "production"
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "ccache": true
       }
     }
   }

@@ -6,14 +6,24 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { IncomingHttpHeaders } from 'http';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { auth } from '../../auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
-/**
- * Converts Node.js IncomingHttpHeaders (plain object) to the Web API Headers
- * object that better-auth's getSession() expects.
- * Preserves the Authorization header so bearer() and jwt() plugins can read it.
- */
+const BETTER_AUTH_URL =
+  process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
+
+// Lazily initialized JWKS — reused across requests
+let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
+function getJWKS() {
+  if (!jwks) {
+    jwks = createRemoteJWKSet(
+      new URL(`${BETTER_AUTH_URL}/api/auth/jwks`),
+    );
+  }
+  return jwks;
+}
+
 function toWebHeaders(incoming: IncomingHttpHeaders): Headers {
   const headers = new Headers();
   for (const [key, value] of Object.entries(incoming)) {
@@ -23,12 +33,23 @@ function toWebHeaders(incoming: IncomingHttpHeaders): Headers {
   return headers;
 }
 
+function extractBearer(headers: IncomingHttpHeaders): string | null {
+  const auth = headers['authorization'];
+  if (typeof auth === 'string' && auth.startsWith('Bearer ')) {
+    return auth.slice(7);
+  }
+  return null;
+}
+
+function looksLikeJWT(token: string): boolean {
+  return token.startsWith('eyJ') && token.split('.').length === 3;
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Routes/controllers decorated with @Public() bypass this guard entirely
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -42,13 +63,31 @@ export class AuthGuard implements CanActivate {
       session: unknown;
     }>();
 
-    // better-auth manages its own /api/auth/* routes — don't block them
     if (request.path?.startsWith('/api/auth')) return true;
 
-    // getSession() checks (in order, with our plugins):
-    //   1. Cookie header         — web / browser sessions
-    //   2. Authorization: Bearer — mobile sessions (via bearer() plugin)
-    //   3. Bearer JWT            — stateless JWT from /api/auth/token (via jwt() plugin)
+    const token = extractBearer(request.headers);
+
+    // --- Path 1: JWT (stateless) ---
+    if (token && looksLikeJWT(token)) {
+      try {
+        const { payload } = await jwtVerify(token, getJWKS(), {
+          issuer: BETTER_AUTH_URL,
+          audience: BETTER_AUTH_URL,
+        });
+        request.user = {
+          id: payload['id'] ?? payload.sub,
+          email: payload['email'],
+          role: payload['role'] ?? null,
+        };
+        return true;
+      } catch {
+        throw new UnauthorizedException(
+          'Invalid or expired JWT. Please sign in again.',
+        );
+      }
+    }
+
+    // --- Path 2: Session token (via bearer() plugin) ---
     const session = await auth.api.getSession({
       headers: toWebHeaders(request.headers),
     });

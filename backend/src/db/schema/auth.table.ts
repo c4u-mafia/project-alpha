@@ -115,7 +115,14 @@ export const verification = pgTable(
   ],
 );
 
-export const authSchema = { user, session, account, verification };
+export const jwks = pgTable('jwks', {
+  id: text('id').primaryKey(),
+  publicKey: text('public_key').notNull(),
+  privateKey: text('private_key').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const authSchema = { user, session, account, verification, jwks };
 
 export type AppRole = (typeof appRoleEnum.enumValues)[number];
 export const SELF_SERVE_ROLES = [
