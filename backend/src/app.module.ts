@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
+import { AppController } from './app.controller';
 
 import { auth } from './auth';
 import { AuthGuard } from './common/guards/auth.guard';
@@ -19,6 +20,7 @@ import { SponsorshipModule } from './sponsorship/sponsorship.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
+  controllers: [AppController],
   imports: [
     AuthModule.forRoot({ auth, disableGlobalAuthGuard: true }),
     EmailModule,
