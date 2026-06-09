@@ -5,7 +5,16 @@ import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
 import { authClient } from '@/lib/auth-client';
 
-const AREAS = ['Lekki', 'Victoria Island', 'Ikeja', 'Surulere', 'Yaba', 'Ajah', 'Ikorodu', 'Maryland'];
+const AREAS = [
+  'Lekki',
+  'Victoria Island',
+  'Ikeja',
+  'Surulere',
+  'Yaba',
+  'Ajah',
+  'Ikorodu',
+  'Maryland',
+];
 const BEDROOMS = ['Studio', '1 Bed', '2 Beds', '3 Beds', '4+ Beds'];
 const TIMELINES = ['ASAP', '1–3 months', '3–6 months', '6+ months'];
 
@@ -22,9 +31,7 @@ export default function TenantPreferences() {
   };
 
   const toggleBed = (b: string) => {
-    setSelectedBedrooms((prev) =>
-      prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]
-    );
+    setSelectedBedrooms((prev) => (prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]));
   };
 
   const handleNext = async () => {
@@ -37,13 +44,11 @@ export default function TenantPreferences() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({
           preferredAreas: selectedAreas,
-          preferredBedrooms: selectedBedrooms.map((b) =>
-            b === 'Studio' ? 0 : parseInt(b)
-          ),
+          preferredBedrooms: selectedBedrooms.map((b) => (b === 'Studio' ? 0 : parseInt(b))),
           moveInTimeline: timeline || undefined,
         }),
       });
-    } catch (_) {}
+    } catch {}
     setLoading(false);
     router.push('/onboarding/complete');
   };
@@ -58,12 +63,13 @@ export default function TenantPreferences() {
       onSkip={() => router.push('/onboarding/complete')}
       loading={loading}
       canProceed={true}
-      nextLabel="Finish Setup"
-    >
-      <View className="gap-5 mt-4">
+      nextLabel="Finish Setup">
+      <View className="mt-4 gap-5">
         {/* Areas */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Preferred Areas
           </Text>
           <View className="flex-row flex-wrap gap-2">
@@ -80,15 +86,13 @@ export default function TenantPreferences() {
                     borderWidth: 1.5,
                     borderColor: sel ? '#0E7C7B' : '#E5E0D8',
                     backgroundColor: sel ? '#D4EDE6' : 'white',
-                  }}
-                >
+                  }}>
                   <Text
                     style={{
                       fontFamily: sel ? 'Geist_600SemiBold' : 'Geist_400Regular',
                       color: sel ? '#0E7C7B' : '#6B7280',
                       fontSize: 13,
-                    }}
-                  >
+                    }}>
                     {area}
                   </Text>
                 </TouchableOpacity>
@@ -99,10 +103,12 @@ export default function TenantPreferences() {
 
         {/* Bedrooms */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Bedroom Count
           </Text>
-          <View className="flex-row gap-2 flex-wrap">
+          <View className="flex-row flex-wrap gap-2">
             {BEDROOMS.map((b) => {
               const sel = selectedBedrooms.includes(b);
               return (
@@ -116,15 +122,13 @@ export default function TenantPreferences() {
                     borderWidth: 2,
                     borderColor: sel ? '#0E7C7B' : '#E5E0D8',
                     backgroundColor: sel ? '#F0FAF9' : 'white',
-                  }}
-                >
+                  }}>
                   <Text
                     style={{
                       fontFamily: sel ? 'Geist_600SemiBold' : 'Geist_400Regular',
                       color: sel ? '#0E7C7B' : '#1A2332',
                       fontSize: 14,
-                    }}
-                  >
+                    }}>
                     {b}
                   </Text>
                 </TouchableOpacity>
@@ -135,7 +139,9 @@ export default function TenantPreferences() {
 
         {/* Timeline */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Move-in Timeline
           </Text>
           <View className="gap-2">
@@ -152,15 +158,13 @@ export default function TenantPreferences() {
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                }}
-              >
+                }}>
                 <Text
                   style={{
                     fontFamily: timeline === t ? 'Geist_600SemiBold' : 'Geist_400Regular',
                     color: timeline === t ? '#0E7C7B' : '#1A2332',
                     fontSize: 14,
-                  }}
-                >
+                  }}>
                   {t}
                 </Text>
                 {timeline === t && <Text className="text-[#0E7C7B]">✓</Text>}

@@ -21,8 +21,7 @@ function TabIcon({
           fontSize: 10,
           color: focused ? '#0E7C7B' : '#A0A0A8',
           marginTop: 2,
-        }}
-      >
+        }}>
         {label}
       </Text>
     </View>
@@ -44,8 +43,7 @@ export default function LandlordLayout() {
           elevation: 0,
           shadowOpacity: 0,
         },
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -58,7 +56,11 @@ export default function LandlordLayout() {
         name="properties"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? 'business' : 'business-outline'} focused={focused} label="Properties" />
+            <TabIcon
+              name={focused ? 'business' : 'business-outline'}
+              focused={focused}
+              label="Properties"
+            />
           ),
         }}
       />
@@ -66,7 +68,11 @@ export default function LandlordLayout() {
         name="tenants"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? 'people' : 'people-outline'} focused={focused} label="Tenants" />
+            <TabIcon
+              name={focused ? 'people' : 'people-outline'}
+              focused={focused}
+              label="Tenants"
+            />
           ),
         }}
       />

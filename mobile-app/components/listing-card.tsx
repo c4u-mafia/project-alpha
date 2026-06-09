@@ -49,8 +49,7 @@ export const ListingCard = ({ listing, onPress, onSave, variant = 'default' }: P
         shadowRadius: 8,
         elevation: 3,
         width: isCompact ? 200 : '100%',
-      }}
-    >
+      }}>
       {/* Image */}
       <View style={{ height: isCompact ? 130 : 180, backgroundColor: '#E5E0D8' }}>
         {listing.photos[0] ? (
@@ -66,9 +65,27 @@ export const ListingCard = ({ listing, onPress, onSave, variant = 'default' }: P
         )}
 
         {/* Overlays */}
-        <View style={{ position: 'absolute', top: 10, left: 10, right: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <View
+          style={{
+            position: 'absolute',
+            top: 10,
+            left: 10,
+            right: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }}>
           {listing.isVerified && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: '#0E7C7B' }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 999,
+                backgroundColor: '#0E7C7B',
+              }}>
               <Ionicons name="shield-checkmark" size={11} color="white" />
               <Text style={{ fontFamily: 'Geist_600SemiBold', color: 'white', fontSize: 10 }}>
                 Verified
@@ -85,8 +102,7 @@ export const ListingCard = ({ listing, onPress, onSave, variant = 'default' }: P
               backgroundColor: 'rgba(0,0,0,0.35)',
               alignItems: 'center',
               justifyContent: 'center',
-            }}
-          >
+            }}>
             <Ionicons
               name={listing.isSaved ? 'heart' : 'heart-outline'}
               size={16}
@@ -100,8 +116,12 @@ export const ListingCard = ({ listing, onPress, onSave, variant = 'default' }: P
       <View style={{ padding: 14 }}>
         <Text
           numberOfLines={1}
-          style={{ fontFamily: 'Geist_600SemiBold', color: '#1A2332', fontSize: 15, marginBottom: 2 }}
-        >
+          style={{
+            fontFamily: 'Geist_600SemiBold',
+            color: '#1A2332',
+            fontSize: 15,
+            marginBottom: 2,
+          }}>
           {listing.title}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginBottom: 10 }}>
@@ -111,7 +131,8 @@ export const ListingCard = ({ listing, onPress, onSave, variant = 'default' }: P
           </Text>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View
+          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View>
             <Text style={{ fontFamily: 'Geist_700Bold', color: '#0E7C7B', fontSize: 17 }}>
               {formatRent(listing.annualRentKobo)}

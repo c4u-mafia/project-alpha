@@ -21,11 +21,11 @@ import {
   GeistMono_700Bold,
 } from '@expo-google-fonts/geist-mono';
 
-const queryClient = new QueryClient();
-
 import '../global.css';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { useColorScheme } from '@/hooks/useColorScheme';
+
+const queryClient = new QueryClient();
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -79,13 +79,28 @@ function RootLayoutNav() {
         <Stack.Screen name="login" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="sign-up" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="verify-otp" options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="onboarding/tenant/basic-info" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen
+          name="onboarding/tenant/basic-info"
+          options={{ animation: 'slide_from_right' }}
+        />
         <Stack.Screen name="onboarding/tenant/nin" options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="onboarding/tenant/employment" options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="onboarding/tenant/preferences" options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="onboarding/landlord/profile" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen
+          name="onboarding/tenant/employment"
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="onboarding/tenant/preferences"
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="onboarding/landlord/profile"
+          options={{ animation: 'slide_from_right' }}
+        />
         <Stack.Screen name="onboarding/landlord/nin" options={{ animation: 'slide_from_right' }} />
-        <Stack.Screen name="onboarding/landlord/documents" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen
+          name="onboarding/landlord/documents"
+          options={{ animation: 'slide_from_right' }}
+        />
         <Stack.Screen name="onboarding/landlord/bank" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="onboarding/complete" options={{ animation: 'fade' }} />
         <Stack.Screen name="(tenant)" options={{ animation: 'fade' }} />

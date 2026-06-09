@@ -31,8 +31,7 @@ export default function TabsLayout() {
           letterSpacing: 0.2,
           marginTop: 4,
         },
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -72,7 +71,9 @@ export default function TabsLayout() {
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, focused }) => (
             <View className="items-center justify-center">
-              <Text style={{ color, fontSize: 22, fontWeight: 'bold' }}>{focused ? '👤' : '👤'}</Text>
+              <Text style={{ color, fontSize: 22, fontWeight: 'bold' }}>
+                {focused ? '👤' : '👤'}
+              </Text>
             </View>
           ),
         }}

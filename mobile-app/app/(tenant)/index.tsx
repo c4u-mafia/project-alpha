@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  FlatList,
-} from 'react-native';
+import { View, ScrollView, TouchableOpacity, StatusBar, FlatList } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -90,7 +84,7 @@ export default function TenantHome() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
 
   const toggleSave = (id: string) => {
-    setSavedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+    setSavedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   return (
@@ -99,16 +93,15 @@ export default function TenantHome() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <Animated.View entering={FadeInDown.delay(50).duration(500)} className="px-5 pt-14 pb-4">
+        <Animated.View entering={FadeInDown.delay(50).duration(500)} className="px-5 pb-4 pt-14">
           <View className="flex-row items-center justify-between">
             <View>
-              <Text className="text-charcoal/40 text-sm" style={{ fontFamily: 'Geist_400Regular' }}>
+              <Text className="text-sm text-charcoal/40" style={{ fontFamily: 'Geist_400Regular' }}>
                 Good morning 👋
               </Text>
               <Text
-                className="text-charcoal text-[22px] leading-7 mt-0.5"
-                style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.3 }}
-              >
+                className="mt-0.5 text-[22px] leading-7 text-charcoal"
+                style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.3 }}>
                 Find your home
               </Text>
             </View>
@@ -123,8 +116,7 @@ export default function TenantHome() {
                   justifyContent: 'center',
                   borderWidth: 1,
                   borderColor: '#F0EBE4',
-                }}
-              >
+                }}>
                 <Ionicons name="notifications-outline" size={20} color="#1A2332" />
               </TouchableOpacity>
             </View>
@@ -144,13 +136,11 @@ export default function TenantHome() {
               height: 48,
               borderWidth: 1,
               borderColor: '#F0EBE4',
-            }}
-          >
+            }}>
             <Ionicons name="search-outline" size={18} color="#9CA3AF" />
             <Text
-              className="text-charcoal/30 flex-1 text-[15px]"
-              style={{ fontFamily: 'Geist_400Regular' }}
-            >
+              className="flex-1 text-[15px] text-charcoal/30"
+              style={{ fontFamily: 'Geist_400Regular' }}>
               Search by area, city or type...
             </Text>
           </TouchableOpacity>
@@ -161,20 +151,15 @@ export default function TenantHome() {
           <Animated.View
             key={section.key}
             entering={FadeInDown.delay(100 + sIdx * 80).duration(500)}
-            className="mb-6"
-          >
-            <View className="flex-row items-center justify-between px-5 mb-3">
-              <Text
-                className="text-charcoal text-[17px]"
-                style={{ fontFamily: 'Geist_700Bold' }}
-              >
+            className="mb-6">
+            <View className="mb-3 flex-row items-center justify-between px-5">
+              <Text className="text-[17px] text-charcoal" style={{ fontFamily: 'Geist_700Bold' }}>
                 {section.label}
               </Text>
               <TouchableOpacity>
                 <Text
-                  className="text-[#0E7C7B] text-sm"
-                  style={{ fontFamily: 'Geist_600SemiBold' }}
-                >
+                  className="text-sm text-[#0E7C7B]"
+                  style={{ fontFamily: 'Geist_600SemiBold' }}>
                   See all
                 </Text>
               </TouchableOpacity>
@@ -182,7 +167,7 @@ export default function TenantHome() {
 
             {section.key === 'forYou' ? (
               /* Full-width cards for "For You" */
-              <View className="px-5 gap-4">
+              <View className="gap-4 px-5">
                 {section.items.map((listing) => (
                   <ListingCard
                     key={listing.id}

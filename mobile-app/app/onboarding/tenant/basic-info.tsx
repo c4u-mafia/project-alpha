@@ -36,7 +36,7 @@ export default function TenantBasicInfo() {
           city,
         }),
       });
-    } catch (_) {}
+    } catch {}
     setLoading(false);
     router.push('/onboarding/tenant/nin');
   };
@@ -59,17 +59,23 @@ export default function TenantBasicInfo() {
       onNext={handleNext}
       onSkip={() => router.push('/onboarding/tenant/nin')}
       loading={loading}
-      canProceed={canProceed}
-    >
-      <View className="gap-4 mt-4">
+      canProceed={canProceed}>
+      <View className="mt-4 gap-4">
         {/* Phone */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Phone Number
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputSlot className="pl-4">
-              <Text className="text-charcoal/50 text-sm" style={{ fontFamily: 'Geist_500Medium' }}>+234</Text>
+              <Text className="text-sm text-charcoal/50" style={{ fontFamily: 'Geist_500Medium' }}>
+                +234
+              </Text>
             </InputSlot>
             <InputField
               placeholder="0801 234 5678"
@@ -86,10 +92,15 @@ export default function TenantBasicInfo() {
 
         {/* DOB */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Date of Birth
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputSlot className="pl-4">
               <Ionicons name="calendar-outline" size={18} color="#9CA3AF" />
             </InputSlot>
@@ -107,10 +118,12 @@ export default function TenantBasicInfo() {
 
         {/* Gender */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Gender
           </Text>
-          <View className="flex-row gap-2 flex-wrap">
+          <View className="flex-row flex-wrap gap-2">
             {GENDERS.map((g) => (
               <TouchableOpacity
                 key={g}
@@ -122,12 +135,13 @@ export default function TenantBasicInfo() {
                   borderWidth: 2,
                   borderColor: gender === g ? '#0E7C7B' : '#E5E0D8',
                   backgroundColor: gender === g ? '#F0FAF9' : 'white',
-                }}
-              >
+                }}>
                 <Text
                   className={gender === g ? 'text-[#0E7C7B]' : 'text-charcoal/60'}
-                  style={{ fontFamily: gender === g ? 'Geist_600SemiBold' : 'Geist_400Regular', fontSize: 14 }}
-                >
+                  style={{
+                    fontFamily: gender === g ? 'Geist_600SemiBold' : 'Geist_400Regular',
+                    fontSize: 14,
+                  }}>
                   {g}
                 </Text>
               </TouchableOpacity>
@@ -137,10 +151,15 @@ export default function TenantBasicInfo() {
 
         {/* City */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             City
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputSlot className="pl-4">
               <Ionicons name="location-outline" size={18} color="#9CA3AF" />
             </InputSlot>

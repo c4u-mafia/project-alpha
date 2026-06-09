@@ -28,14 +28,14 @@ export const SplashScreen = ({ onNext }: { onNext: () => void }) => {
     dotOpacity.value = withDelay(1000, withTiming(1, { duration: 400 }));
     dotOpacity.value = withSequence(
       withDelay(1000, withTiming(1, { duration: 400 })),
-      withDelay(600, withTiming(0, { duration: 300, })),
+      withDelay(600, withTiming(0, { duration: 300 }))
     );
 
     const timer = setTimeout(() => {
       runOnJS(onNext)();
     }, 2200);
     return () => clearTimeout(timer);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const logoStyle = useAnimatedStyle(() => ({
     opacity: logoOpacity.value,
@@ -48,25 +48,30 @@ export const SplashScreen = ({ onNext }: { onNext: () => void }) => {
   }));
 
   return (
-    <View className="flex-1 bg-[#0E7C7B] items-center justify-center">
+    <View className="flex-1 items-center justify-center bg-[#0E7C7B]">
       <StatusBar barStyle="light-content" backgroundColor="#0E7C7B" />
 
       <Animated.View style={logoStyle} className="items-center">
-        <View className="w-20 h-20 bg-white/15 rounded-3xl items-center justify-center mb-5">
-          <View className="w-12 h-12 bg-white rounded-2xl items-center justify-center">
-            <Text className="text-[#0E7C7B] text-2xl font-bold" style={{ fontFamily: 'Geist_700Bold' }}>H</Text>
+        <View className="mb-5 h-20 w-20 items-center justify-center rounded-3xl bg-white/15">
+          <View className="h-12 w-12 items-center justify-center rounded-2xl bg-white">
+            <Text
+              className="text-2xl font-bold text-[#0E7C7B]"
+              style={{ fontFamily: 'Geist_700Bold' }}>
+              H
+            </Text>
           </View>
         </View>
         <Text
-          className="text-white text-4xl tracking-tight"
-          style={{ fontFamily: 'Geist_700Bold', letterSpacing: -1 }}
-        >
+          className="text-4xl tracking-tight text-white"
+          style={{ fontFamily: 'Geist_700Bold', letterSpacing: -1 }}>
           homelyn
         </Text>
       </Animated.View>
 
       <Animated.View style={taglineStyle} className="mt-4 items-center">
-        <Text className="text-white/60 text-base tracking-wide" style={{ fontFamily: 'Geist_400Regular' }}>
+        <Text
+          className="text-base tracking-wide text-white/60"
+          style={{ fontFamily: 'Geist_400Regular' }}>
           Rent direct. Live easy.
         </Text>
       </Animated.View>

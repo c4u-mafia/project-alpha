@@ -14,7 +14,7 @@ const SLIDES = [
     badge: 'DIRECT TO LANDLORD',
     title: 'Find homes from\nreal landlords.',
     description:
-      "No agents, no hidden fees. Connect directly with verified landlords and close a deal in days, not weeks.",
+      'No agents, no hidden fees. Connect directly with verified landlords and close a deal in days, not weeks.',
     bg: '#0E7C7B',
     accent: '#D4EDE6',
   },
@@ -24,7 +24,7 @@ const SLIDES = [
     badge: 'SMART PAYMENTS',
     title: 'Pay rent the\nsmart way.',
     description:
-      "Securely pay rent, track your payment history, and get reminders before your next due date — all in one place.",
+      'Securely pay rent, track your payment history, and get reminders before your next due date — all in one place.',
     bg: '#1A2332',
     accent: '#F2A65A',
   },
@@ -34,7 +34,7 @@ const SLIDES = [
     badge: 'RENT SPONSORSHIP',
     title: 'Family can help.\nLet them.',
     description:
-      "Create a rent goal and share a link. Friends and family can contribute directly — anonymously or openly.",
+      'Create a rent goal and share a link. Friends and family can contribute directly — anonymously or openly.',
     bg: '#0E7C7B',
     accent: '#D4EDE6',
   },
@@ -73,42 +73,37 @@ export const Onboarding = memo(({ onFinish }: { onFinish: () => void }) => {
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
         renderItem={({ item }) => (
-          <View style={{ width }} className="px-8 pt-20 pb-4">
+          <View style={{ width }} className="px-8 pb-4 pt-20">
             <Animated.View entering={FadeIn.duration(500)} className="flex-1 justify-center pb-16">
               {/* Illustration */}
               <View
-                className="w-32 h-32 rounded-3xl items-center justify-center mb-10"
-                style={{ backgroundColor: `${item.accent}20` }}
-              >
+                className="mb-10 h-32 w-32 items-center justify-center rounded-3xl"
+                style={{ backgroundColor: `${item.accent}20` }}>
                 <Text style={{ fontSize: 56 }}>{item.emoji}</Text>
               </View>
 
               {/* Badge */}
               <View
-                className="self-start px-3 py-1.5 rounded-full mb-5"
-                style={{ backgroundColor: `${item.accent}25` }}
-              >
+                className="mb-5 self-start rounded-full px-3 py-1.5"
+                style={{ backgroundColor: `${item.accent}25` }}>
                 <Text
                   className="text-[10px] font-bold tracking-widest"
-                  style={{ color: item.accent, fontFamily: 'Geist_700Bold' }}
-                >
+                  style={{ color: item.accent, fontFamily: 'Geist_700Bold' }}>
                   {item.badge}
                 </Text>
               </View>
 
               {/* Title */}
               <Text
-                className="text-white text-[34px] leading-[42px] mb-4"
-                style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}
-              >
+                className="mb-4 text-[34px] leading-[42px] text-white"
+                style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}>
                 {item.title}
               </Text>
 
               {/* Description */}
               <Text
-                className="text-white/60 text-[15px] leading-6 pr-6"
-                style={{ fontFamily: 'Geist_400Regular' }}
-              >
+                className="pr-6 text-[15px] leading-6 text-white/60"
+                style={{ fontFamily: 'Geist_400Regular' }}>
                 {item.description}
               </Text>
             </Animated.View>
@@ -119,7 +114,7 @@ export const Onboarding = memo(({ onFinish }: { onFinish: () => void }) => {
       {/* Footer */}
       <Animated.View entering={FadeInDown.delay(200).duration(600)} className="px-8 pb-12">
         {/* Dots */}
-        <View className="flex-row justify-center gap-2 mb-8">
+        <View className="mb-8 flex-row justify-center gap-2">
           {SLIDES.map((_, i) => (
             <View
               key={i}
@@ -137,25 +132,15 @@ export const Onboarding = memo(({ onFinish }: { onFinish: () => void }) => {
         <Button
           size="lg"
           onPress={handleNext}
-          className="bg-white rounded-2xl mb-3"
-          style={{ height: 54 }}
-        >
-          <ButtonText
-            className="text-[#0E7C7B] text-base"
-            style={{ fontFamily: 'Geist_700Bold' }}
-          >
+          className="mb-3 rounded-2xl bg-white"
+          style={{ height: 54 }}>
+          <ButtonText className="text-base text-[#0E7C7B]" style={{ fontFamily: 'Geist_700Bold' }}>
             {activeIndex === SLIDES.length - 1 ? 'Get Started' : 'Continue'}
           </ButtonText>
         </Button>
 
-        <TouchableOpacity
-          onPress={() => router.push('/login')}
-          className="items-center py-3"
-        >
-          <Text
-            className="text-white/60 text-sm"
-            style={{ fontFamily: 'Geist_400Regular' }}
-          >
+        <TouchableOpacity onPress={() => router.push('/login')} className="items-center py-3">
+          <Text className="text-sm text-white/60" style={{ fontFamily: 'Geist_400Regular' }}>
             I already have an account
           </Text>
         </TouchableOpacity>

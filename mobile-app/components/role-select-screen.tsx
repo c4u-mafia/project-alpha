@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, StatusBar } from 'react-native';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useGlobalStore } from '@/store/global-store';
 import { Text } from './ui/text';
@@ -34,31 +34,28 @@ export const RoleSelectScreen = () => {
   };
 
   return (
-    <View className="flex-1 bg-cream px-6 pt-16 pb-10">
+    <View className="flex-1 bg-cream px-6 pb-10 pt-16">
       <StatusBar barStyle="dark-content" backgroundColor="#FAF7F2" />
 
       <Animated.View entering={FadeInDown.delay(100).duration(600)} className="mb-10">
         <Text
-          className="text-charcoal text-[13px] font-bold tracking-widest uppercase mb-3"
-          style={{ fontFamily: 'Geist_700Bold' }}
-        >
+          className="mb-3 text-[13px] font-bold uppercase tracking-widest text-charcoal"
+          style={{ fontFamily: 'Geist_700Bold' }}>
           HOMELYN
         </Text>
         <Text
-          className="text-charcoal text-[30px] leading-[38px]"
-          style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}
-        >
+          className="text-[30px] leading-[38px] text-charcoal"
+          style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}>
           How will you{'\n'}use Homelyn?
         </Text>
         <Text
-          className="text-charcoal/50 text-base mt-3"
-          style={{ fontFamily: 'Geist_400Regular' }}
-        >
+          className="mt-3 text-base text-charcoal/50"
+          style={{ fontFamily: 'Geist_400Regular' }}>
           You can change this later in settings.
         </Text>
       </Animated.View>
 
-      <View className="gap-4 flex-1">
+      <View className="flex-1 gap-4">
         {ROLES.map((role, i) => {
           const isSelected = selected === role.id;
           return (
@@ -72,8 +69,7 @@ export const RoleSelectScreen = () => {
                   borderRadius: 20,
                   backgroundColor: isSelected ? '#F0FAF9' : 'white',
                   padding: 22,
-                }}
-              >
+                }}>
                 <View className="flex-row items-start gap-4">
                   <View
                     style={{
@@ -83,23 +79,20 @@ export const RoleSelectScreen = () => {
                       backgroundColor: isSelected ? '#D4EDE6' : '#F5F5F0',
                       alignItems: 'center',
                       justifyContent: 'center',
-                    }}
-                  >
+                    }}>
                     <Text style={{ fontSize: 26 }}>{role.emoji}</Text>
                   </View>
                   <View className="flex-1">
-                    <View className="flex-row items-center gap-2 mb-1">
+                    <View className="mb-1 flex-row items-center gap-2">
                       <Text
-                        className="text-charcoal text-[17px]"
-                        style={{ fontFamily: 'Geist_600SemiBold' }}
-                      >
+                        className="text-[17px] text-charcoal"
+                        style={{ fontFamily: 'Geist_600SemiBold' }}>
                         {role.title}
                       </Text>
                     </View>
                     <Text
-                      className="text-charcoal/50 text-[13px] leading-5"
-                      style={{ fontFamily: 'Geist_400Regular' }}
-                    >
+                      className="text-[13px] leading-5 text-charcoal/50"
+                      style={{ fontFamily: 'Geist_400Regular' }}>
                       {role.subtitle}
                     </Text>
                   </View>
@@ -114,11 +107,8 @@ export const RoleSelectScreen = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       marginTop: 2,
-                    }}
-                  >
-                    {isSelected && (
-                      <Text className="text-white text-xs font-bold">✓</Text>
-                    )}
+                    }}>
+                    {isSelected && <Text className="text-xs font-bold text-white">✓</Text>}
                   </View>
                 </View>
               </TouchableOpacity>
@@ -136,26 +126,16 @@ export const RoleSelectScreen = () => {
             height: 54,
             borderRadius: 14,
             backgroundColor: selected ? '#0E7C7B' : '#D0CCC6',
-          }}
-        >
-          <ButtonText
-            className="text-white text-base"
-            style={{ fontFamily: 'Geist_700Bold' }}
-          >
+          }}>
+          <ButtonText className="text-base text-white" style={{ fontFamily: 'Geist_700Bold' }}>
             Continue
           </ButtonText>
         </Button>
 
         <TouchableOpacity onPress={() => router.push('/login')} className="items-center py-2">
-          <Text
-            className="text-charcoal/50 text-sm"
-            style={{ fontFamily: 'Geist_400Regular' }}
-          >
+          <Text className="text-sm text-charcoal/50" style={{ fontFamily: 'Geist_400Regular' }}>
             Already have an account?{' '}
-            <Text
-              className="text-[#0E7C7B]"
-              style={{ fontFamily: 'Geist_600SemiBold' }}
-            >
+            <Text className="text-[#0E7C7B]" style={{ fontFamily: 'Geist_600SemiBold' }}>
               Sign in
             </Text>
           </Text>

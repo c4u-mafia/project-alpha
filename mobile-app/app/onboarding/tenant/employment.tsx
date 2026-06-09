@@ -34,7 +34,7 @@ export default function TenantEmployment() {
           incomeRange: income || undefined,
         }),
       });
-    } catch (_) {}
+    } catch {}
     setLoading(false);
     router.push('/onboarding/tenant/preferences');
   };
@@ -49,19 +49,23 @@ export default function TenantEmployment() {
       onSkip={() => router.push('/onboarding/tenant/preferences')}
       loading={loading}
       canProceed={true}
-      nextLabel="Continue"
-    >
-      <View className="gap-4 mt-4">
+      nextLabel="Continue">
+      <View className="mt-4 gap-4">
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Employer / Company Name
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputField
               placeholder="e.g. Dangote Group"
               value={employerName}
               onChangeText={setEmployerName}
-              className="text-charcoal px-4"
+              className="px-4 text-charcoal"
               placeholderTextColor="#C0BBC4"
               style={{ fontFamily: 'Geist_400Regular' }}
             />
@@ -69,15 +73,20 @@ export default function TenantEmployment() {
         </View>
 
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Job Title / Role
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputField
               placeholder="e.g. Software Engineer"
               value={jobTitle}
               onChangeText={setJobTitle}
-              className="text-charcoal px-4"
+              className="px-4 text-charcoal"
               placeholderTextColor="#C0BBC4"
               style={{ fontFamily: 'Geist_400Regular' }}
             />
@@ -85,7 +94,9 @@ export default function TenantEmployment() {
         </View>
 
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Monthly Income Range
           </Text>
           <View className="gap-2">
@@ -102,20 +113,16 @@ export default function TenantEmployment() {
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                }}
-              >
+                }}>
                 <Text
                   style={{
                     fontFamily: income === range ? 'Geist_600SemiBold' : 'Geist_400Regular',
                     color: income === range ? '#0E7C7B' : '#1A2332',
                     fontSize: 14,
-                  }}
-                >
+                  }}>
                   {range}
                 </Text>
-                {income === range && (
-                  <Text className="text-[#0E7C7B] text-base">✓</Text>
-                )}
+                {income === range && <Text className="text-base text-[#0E7C7B]">✓</Text>}
               </TouchableOpacity>
             ))}
           </View>

@@ -7,20 +7,17 @@ export const Logo = ({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) => {
 
   return (
     <View className="items-center justify-center">
-      <View 
-        className="bg-[#006970]/20 rounded-3xl items-center justify-center p-4 mb-4"
-        style={{ width: iconSize, height: iconSize }}
-      >
-        <View className="w-full h-full border-2 border-white/80 rounded-lg flex-row gap-0.5 p-1 flex-wrap">
-          <View className="w-[45%] h-[20%] bg-white m-0.5" />
-          <View className="w-[45%] h-[20%] bg-white m-0.5" />
-          <View className="w-[45%] h-[20%] bg-white m-0.5" />
-          <View className="w-[45%] h-[20%] bg-white m-0.5" />
+      <View
+        className="mb-4 items-center justify-center rounded-3xl bg-[#006970]/20 p-4"
+        style={{ width: iconSize, height: iconSize }}>
+        <View className="h-full w-full flex-row flex-wrap gap-0.5 rounded-lg border-2 border-white/80 p-1">
+          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
+          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
+          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
+          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
         </View>
       </View>
-      <Text className={`${textSize} font-bold text-primary-500 tracking-tight`}>
-        Homelyn
-      </Text>
+      <Text className={`${textSize} font-bold tracking-tight text-primary-500`}>Homelyn</Text>
     </View>
   );
 };

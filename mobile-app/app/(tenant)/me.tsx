@@ -11,10 +11,18 @@ const MENU_SECTIONS = [
   {
     title: 'Account',
     items: [
-      { icon: 'person-circle-outline' as const, label: 'Edit Profile', sub: 'Name, photo, contact info' },
+      {
+        icon: 'person-circle-outline' as const,
+        label: 'Edit Profile',
+        sub: 'Name, photo, contact info',
+      },
       { icon: 'card-outline' as const, label: 'Wallet', sub: 'Balance & transactions' },
       { icon: 'heart-outline' as const, label: 'Saved Homes', sub: 'Your favourited listings' },
-      { icon: 'shield-checkmark-outline' as const, label: 'KYC Verification', sub: 'NIN & identity status' },
+      {
+        icon: 'shield-checkmark-outline' as const,
+        label: 'KYC Verification',
+        sub: 'NIN & identity status',
+      },
     ],
   },
   {
@@ -22,7 +30,11 @@ const MENU_SECTIONS = [
     items: [
       { icon: 'home-outline' as const, label: 'My Tenancy', sub: 'Current rent details' },
       { icon: 'calendar-outline' as const, label: 'Viewings', sub: 'Scheduled property visits' },
-      { icon: 'document-text-outline' as const, label: 'Applications', sub: 'Your rental applications' },
+      {
+        icon: 'document-text-outline' as const,
+        label: 'Applications',
+        sub: 'Your rental applications',
+      },
     ],
   },
   {
@@ -57,8 +69,7 @@ export default function TenantMe() {
               paddingTop: 60,
               paddingBottom: 32,
               paddingHorizontal: 24,
-            }}
-          >
+            }}>
             <View className="flex-row items-center gap-4">
               <View
                 style={{
@@ -70,15 +81,20 @@ export default function TenantMe() {
                   justifyContent: 'center',
                   borderWidth: 2,
                   borderColor: 'rgba(255,255,255,0.4)',
-                }}
-              >
+                }}>
                 <Text style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 24 }}>C</Text>
               </View>
               <View className="flex-1">
                 <Text style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 20 }}>
                   Chioma Okafor
                 </Text>
-                <Text style={{ fontFamily: 'Geist_400Regular', color: 'rgba(255,255,255,0.6)', fontSize: 13, marginTop: 1 }}>
+                <Text
+                  style={{
+                    fontFamily: 'Geist_400Regular',
+                    color: 'rgba(255,255,255,0.6)',
+                    fontSize: 13,
+                    marginTop: 1,
+                  }}>
                   chioma@gmail.com
                 </Text>
                 <View
@@ -89,16 +105,21 @@ export default function TenantMe() {
                     borderRadius: 999,
                     backgroundColor: 'rgba(255,255,255,0.15)',
                     alignSelf: 'flex-start',
-                  }}
-                >
+                  }}>
                   <Text style={{ fontFamily: 'Geist_600SemiBold', color: 'white', fontSize: 11 }}>
                     TENANT
                   </Text>
                 </View>
               </View>
               <TouchableOpacity
-                style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center' }}
-              >
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
                 <Ionicons name="pencil-outline" size={16} color="white" />
               </TouchableOpacity>
             </View>
@@ -113,13 +134,23 @@ export default function TenantMe() {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-              }}
-            >
+              }}>
               <View>
-                <Text style={{ fontFamily: 'Geist_400Regular', color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>
+                <Text
+                  style={{
+                    fontFamily: 'Geist_400Regular',
+                    color: 'rgba(255,255,255,0.6)',
+                    fontSize: 12,
+                  }}>
                   Wallet Balance
                 </Text>
-                <Text style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 22, marginTop: 2 }}>
+                <Text
+                  style={{
+                    fontFamily: 'Geist_700Bold',
+                    color: 'white',
+                    fontSize: 22,
+                    marginTop: 2,
+                  }}>
                   ₦24,500
                 </Text>
               </View>
@@ -129,8 +160,7 @@ export default function TenantMe() {
                   paddingVertical: 8,
                   borderRadius: 10,
                   backgroundColor: '#F2A65A',
-                }}
-              >
+                }}>
                 <Text style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 13 }}>
                   Top Up
                 </Text>
@@ -140,13 +170,14 @@ export default function TenantMe() {
         </Animated.View>
 
         {/* Menu Sections */}
-        <View className="px-5 py-5 gap-6">
+        <View className="gap-6 px-5 py-5">
           {MENU_SECTIONS.map((section, sIdx) => (
-            <Animated.View key={section.title} entering={FadeInDown.delay(100 + sIdx * 60).duration(400)}>
+            <Animated.View
+              key={section.title}
+              entering={FadeInDown.delay(100 + sIdx * 60).duration(400)}>
               <Text
-                className="text-charcoal/40 text-xs uppercase tracking-widest mb-2"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="mb-2 text-xs uppercase tracking-widest text-charcoal/40"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 {section.title}
               </Text>
               <View
@@ -156,8 +187,7 @@ export default function TenantMe() {
                   borderWidth: 1,
                   borderColor: '#F0EBE4',
                   overflow: 'hidden',
-                }}
-              >
+                }}>
                 {section.items.map((item, i) => (
                   <TouchableOpacity
                     key={item.label}
@@ -169,8 +199,7 @@ export default function TenantMe() {
                       paddingVertical: 14,
                       borderTopWidth: i > 0 ? 1 : 0,
                       borderTopColor: '#F5F0EC',
-                    }}
-                  >
+                    }}>
                     <View
                       style={{
                         width: 36,
@@ -179,16 +208,22 @@ export default function TenantMe() {
                         backgroundColor: '#F5F5F0',
                         alignItems: 'center',
                         justifyContent: 'center',
-                      }}
-                    >
+                      }}>
                       <Ionicons name={item.icon} size={18} color="#6B7280" />
                     </View>
                     <View className="flex-1">
-                      <Text style={{ fontFamily: 'Geist_500Medium', color: '#1A2332', fontSize: 14 }}>
+                      <Text
+                        style={{ fontFamily: 'Geist_500Medium', color: '#1A2332', fontSize: 14 }}>
                         {item.label}
                       </Text>
                       {item.sub && (
-                        <Text style={{ fontFamily: 'Geist_400Regular', color: '#9CA3AF', fontSize: 12, marginTop: 0.5 }}>
+                        <Text
+                          style={{
+                            fontFamily: 'Geist_400Regular',
+                            color: '#9CA3AF',
+                            fontSize: 12,
+                            marginTop: 0.5,
+                          }}>
                           {item.sub}
                         </Text>
                       )}
@@ -214,8 +249,7 @@ export default function TenantMe() {
                 borderWidth: 1.5,
                 borderColor: '#FCA5A5',
                 backgroundColor: '#FEF2F2',
-              }}
-            >
+              }}>
               <Ionicons name="log-out-outline" size={18} color="#EF4444" />
               <Text style={{ fontFamily: 'Geist_600SemiBold', color: '#EF4444', fontSize: 14 }}>
                 Sign Out

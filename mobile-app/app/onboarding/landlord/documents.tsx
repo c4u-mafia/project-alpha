@@ -7,7 +7,11 @@ import { Text } from '@/components/ui/text';
 import { authClient } from '@/lib/auth-client';
 
 const DOC_TYPES = [
-  { id: 'certificate_of_occupancy', label: 'Certificate of Occupancy (C of O)', icon: 'document-text-outline' as const },
+  {
+    id: 'certificate_of_occupancy',
+    label: 'Certificate of Occupancy (C of O)',
+    icon: 'document-text-outline' as const,
+  },
   { id: 'deed_of_assignment', label: 'Deed of Assignment', icon: 'document-outline' as const },
   { id: 'survey_plan', label: 'Survey Plan', icon: 'map-outline' as const },
   { id: 'utility_bill', label: 'Recent Utility Bill', icon: 'receipt-outline' as const },
@@ -53,7 +57,7 @@ export default function LandlordDocuments() {
           })
         )
       );
-    } catch (_) {}
+    } catch {}
     setLoading(false);
     router.push('/onboarding/landlord/bank');
   };
@@ -68,13 +72,20 @@ export default function LandlordDocuments() {
       onSkip={() => router.push('/onboarding/landlord/bank')}
       loading={loading}
       canProceed={true}
-      nextLabel={docs.length > 0 ? `Submit ${docs.length} Document${docs.length > 1 ? 's' : ''}` : 'Skip for Now'}
-    >
-      <View className="gap-3 mt-4">
-        <View className="bg-sunbloom/10 border border-sunbloom/30 rounded-2xl p-4 flex-row gap-3">
+      nextLabel={
+        docs.length > 0
+          ? `Submit ${docs.length} Document${docs.length > 1 ? 's' : ''}`
+          : 'Skip for Now'
+      }>
+      <View className="mt-4 gap-3">
+        <View className="flex-row gap-3 rounded-2xl border border-sunbloom/30 bg-sunbloom/10 p-4">
           <Ionicons name="time-outline" size={20} color="#F2A65A" />
-          <Text className="text-charcoal/70 text-[13px] flex-1 leading-5" style={{ fontFamily: 'Geist_400Regular' }}>
-            Our team reviews documents within 24 hours. You can still browse but won't be able to publish listings until approved.
+          <Text
+            className="flex-1 text-[13px] leading-5 text-charcoal/70"
+            style={{ fontFamily: 'Geist_400Regular' }}>
+            {
+              "Our team reviews documents within 24 hours. You can still browse but won't be able to publish listings until approved."
+            }
           </Text>
         </View>
 
@@ -83,7 +94,7 @@ export default function LandlordDocuments() {
           return (
             <TouchableOpacity
               key={docType.id}
-              onPress={() => added ? removeDoc(docType.id) : addDoc(docType.id, docType.label)}
+              onPress={() => (added ? removeDoc(docType.id) : addDoc(docType.id, docType.label))}
               style={{
                 padding: 16,
                 borderRadius: 14,
@@ -94,20 +105,34 @@ export default function LandlordDocuments() {
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 12,
-              }}
-            >
-              <View style={{
-                width: 40, height: 40, borderRadius: 10,
-                backgroundColor: added ? '#D4EDE6' : '#F5F5F0',
-                alignItems: 'center', justifyContent: 'center',
               }}>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  backgroundColor: added ? '#D4EDE6' : '#F5F5F0',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
                 <Ionicons name={docType.icon} size={20} color={added ? '#0E7C7B' : '#9CA3AF'} />
               </View>
               <View className="flex-1">
-                <Text style={{ fontFamily: 'Geist_500Medium', color: added ? '#0E7C7B' : '#1A2332', fontSize: 14 }}>
+                <Text
+                  style={{
+                    fontFamily: 'Geist_500Medium',
+                    color: added ? '#0E7C7B' : '#1A2332',
+                    fontSize: 14,
+                  }}>
                   {docType.label}
                 </Text>
-                <Text style={{ fontFamily: 'Geist_400Regular', color: '#9CA3AF', fontSize: 12, marginTop: 1 }}>
+                <Text
+                  style={{
+                    fontFamily: 'Geist_400Regular',
+                    color: '#9CA3AF',
+                    fontSize: 12,
+                    marginTop: 1,
+                  }}>
                   {added ? 'Tap to remove' : 'Tap to add'}
                 </Text>
               </View>

@@ -8,8 +8,16 @@ import { Input, InputField } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 
 const BANKS = [
-  'Access Bank', 'GTBank', 'First Bank', 'Zenith Bank', 'UBA',
-  'Fidelity Bank', 'Stanbic IBTC', 'FCMB', 'Sterling Bank', 'Wema Bank',
+  'Access Bank',
+  'GTBank',
+  'First Bank',
+  'Zenith Bank',
+  'UBA',
+  'Fidelity Bank',
+  'Stanbic IBTC',
+  'FCMB',
+  'Sterling Bank',
+  'Wema Bank',
 ];
 
 export default function LandlordBank() {
@@ -36,7 +44,7 @@ export default function LandlordBank() {
           bankCode: '000',
         }),
       });
-    } catch (_) {}
+    } catch {}
     setLoading(false);
     router.push('/onboarding/complete');
   };
@@ -51,19 +59,22 @@ export default function LandlordBank() {
       onSkip={() => router.push('/onboarding/complete')}
       loading={loading}
       canProceed={canProceed}
-      nextLabel="Finish Setup"
-    >
-      <View className="gap-4 mt-4">
-        <View className="bg-mint rounded-2xl p-4 flex-row gap-3">
+      nextLabel="Finish Setup">
+      <View className="mt-4 gap-4">
+        <View className="flex-row gap-3 rounded-2xl bg-mint p-4">
           <Ionicons name="lock-closed-outline" size={18} color="#0E7C7B" />
-          <Text className="text-[#0E7C7B] text-[13px] flex-1 leading-5" style={{ fontFamily: 'Geist_400Regular' }}>
+          <Text
+            className="flex-1 text-[13px] leading-5 text-[#0E7C7B]"
+            style={{ fontFamily: 'Geist_400Regular' }}>
             Rent is held for 24 hours before release to protect both parties.
           </Text>
         </View>
 
         {/* Bank picker */}
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Bank
           </Text>
           <TouchableOpacity
@@ -77,28 +88,48 @@ export default function LandlordBank() {
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: 16,
-            }}
-          >
-            <Text style={{ fontFamily: 'Geist_400Regular', color: bankName ? '#1A2332' : '#C0BBC4', fontSize: 14, flex: 1 }}>
+            }}>
+            <Text
+              style={{
+                fontFamily: 'Geist_400Regular',
+                color: bankName ? '#1A2332' : '#C0BBC4',
+                fontSize: 14,
+                flex: 1,
+              }}>
               {bankName || 'Select your bank'}
             </Text>
             <Ionicons name={showPicker ? 'chevron-up' : 'chevron-down'} size={18} color="#9CA3AF" />
           </TouchableOpacity>
 
           {showPicker && (
-            <View style={{ borderRadius: 12, borderWidth: 1, borderColor: '#E5E0D8', backgroundColor: 'white', marginTop: 4, overflow: 'hidden' }}>
+            <View
+              style={{
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: '#E5E0D8',
+                backgroundColor: 'white',
+                marginTop: 4,
+                overflow: 'hidden',
+              }}>
               {BANKS.map((bank, i) => (
                 <TouchableOpacity
                   key={bank}
-                  onPress={() => { setBankName(bank); setShowPicker(false); }}
+                  onPress={() => {
+                    setBankName(bank);
+                    setShowPicker(false);
+                  }}
                   style={{
                     padding: 14,
                     borderTopWidth: i > 0 ? 1 : 0,
                     borderTopColor: '#F0EBE4',
                     backgroundColor: bankName === bank ? '#F0FAF9' : 'white',
-                  }}
-                >
-                  <Text style={{ fontFamily: bankName === bank ? 'Geist_600SemiBold' : 'Geist_400Regular', color: bankName === bank ? '#0E7C7B' : '#1A2332', fontSize: 14 }}>
+                  }}>
+                  <Text
+                    style={{
+                      fontFamily: bankName === bank ? 'Geist_600SemiBold' : 'Geist_400Regular',
+                      color: bankName === bank ? '#0E7C7B' : '#1A2332',
+                      fontSize: 14,
+                    }}>
                     {bank}
                   </Text>
                 </TouchableOpacity>
@@ -108,17 +139,22 @@ export default function LandlordBank() {
         </View>
 
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Account Number
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputField
               placeholder="0123456789"
               value={accountNumber}
               onChangeText={(v) => setAccountNumber(v.replace(/[^0-9]/g, '').slice(0, 10))}
               keyboardType="number-pad"
               maxLength={10}
-              className="text-charcoal px-4 tracking-widest"
+              className="px-4 tracking-widest text-charcoal"
               placeholderTextColor="#C0BBC4"
               style={{ fontFamily: 'Geist_400Regular' }}
             />
@@ -126,15 +162,20 @@ export default function LandlordBank() {
         </View>
 
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Account Name
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputField
               placeholder="As shown on your bank statement"
               value={accountName}
               onChangeText={setAccountName}
-              className="text-charcoal px-4"
+              className="px-4 text-charcoal"
               placeholderTextColor="#C0BBC4"
               style={{ fontFamily: 'Geist_400Regular' }}
             />

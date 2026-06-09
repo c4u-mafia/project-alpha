@@ -4,7 +4,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
   Easing,
 } from 'react-native-reanimated';
 import { Text } from './ui/text';
@@ -56,7 +55,7 @@ export const RentHealthBar = ({
       duration: 900,
       easing: Easing.out(Easing.cubic),
     });
-  }, [clampedPct]);
+  }, [clampedPct]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const barStyle = useAnimatedStyle(() => ({
     width: `${width.value}%`,
@@ -66,9 +65,7 @@ export const RentHealthBar = ({
   if (compact) {
     return (
       <View className="gap-1">
-        <View
-          style={{ height, borderRadius: 999, backgroundColor: '#F0EBE4', overflow: 'hidden' }}
-        >
+        <View style={{ height, borderRadius: 999, backgroundColor: '#F0EBE4', overflow: 'hidden' }}>
           <Animated.View style={[{ height, borderRadius: 999 }, barStyle]} />
         </View>
       </View>
@@ -78,13 +75,12 @@ export const RentHealthBar = ({
   return (
     <View>
       {(showLabel || showPercentage) && (
-        <View className="flex-row items-center justify-between mb-2">
+        <View className="mb-2 flex-row items-center justify-between">
           {showLabel && (
             <View className="flex-row items-center gap-2">
               <Text
-                className="text-charcoal/60 text-xs uppercase tracking-wider"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="text-xs uppercase tracking-wider text-charcoal/60"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 Rent Health
               </Text>
               <View
@@ -93,15 +89,13 @@ export const RentHealthBar = ({
                   paddingVertical: 3,
                   borderRadius: 999,
                   backgroundColor: bg,
-                }}
-              >
+                }}>
                 <Text
                   style={{
                     fontFamily: 'Geist_600SemiBold',
                     color,
                     fontSize: 11,
-                  }}
-                >
+                  }}>
                   {label}
                 </Text>
               </View>
@@ -113,8 +107,7 @@ export const RentHealthBar = ({
                 fontFamily: 'Geist_700Bold',
                 color,
                 fontSize: 14,
-              }}
-            >
+              }}>
               {clampedPct}%
             </Text>
           )}
@@ -127,8 +120,7 @@ export const RentHealthBar = ({
           borderRadius: 999,
           backgroundColor: '#F0EBE4',
           overflow: 'hidden',
-        }}
-      >
+        }}>
         <Animated.View style={[{ height, borderRadius: 999 }, barStyle]} />
       </View>
     </View>

@@ -46,11 +46,10 @@ export const LoginScreen = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-cream"
-    >
+      className="flex-1 bg-cream">
       <StatusBar barStyle="dark-content" backgroundColor="#FAF7F2" />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <View className="flex-1 px-6 pt-14 pb-8">
+        <View className="flex-1 px-6 pb-8 pt-14">
           {/* Back */}
           <TouchableOpacity onPress={() => router.back()} className="mb-8 self-start">
             <Ionicons name="arrow-back" size={24} color="#1A2332" />
@@ -59,15 +58,13 @@ export const LoginScreen = () => {
           {/* Header */}
           <Animated.View entering={FadeInDown.delay(100).duration(600)} className="mb-10">
             <Text
-              className="text-charcoal text-[28px] leading-[36px] mb-2"
-              style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}
-            >
+              className="mb-2 text-[28px] leading-[36px] text-charcoal"
+              style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}>
               Welcome{'\n'}back.
             </Text>
             <Text
-              className="text-charcoal/50 text-[15px]"
-              style={{ fontFamily: 'Geist_400Regular' }}
-            >
+              className="text-[15px] text-charcoal/50"
+              style={{ fontFamily: 'Geist_400Regular' }}>
               Sign in to continue to Homelyn
             </Text>
           </Animated.View>
@@ -75,8 +72,8 @@ export const LoginScreen = () => {
           {/* Form */}
           <Animated.View entering={FadeInDown.delay(200).duration(600)} className="gap-4">
             {errorMsg ? (
-              <View className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                <Text className="text-red-600 text-sm" style={{ fontFamily: 'Geist_500Medium' }}>
+              <View className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <Text className="text-sm text-red-600" style={{ fontFamily: 'Geist_500Medium' }}>
                   {errorMsg}
                 </Text>
               </View>
@@ -84,16 +81,14 @@ export const LoginScreen = () => {
 
             <View>
               <Text
-                className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 Email Address
               </Text>
               <Input
                 variant="rounded"
                 size="lg"
-                className="bg-white border border-[#E5E0D8] rounded-xl h-13"
-              >
+                className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
                 <InputSlot className="pl-4">
                   <Ionicons name="mail-outline" size={18} color="#9CA3AF" />
                 </InputSlot>
@@ -111,18 +106,16 @@ export const LoginScreen = () => {
             </View>
 
             <View>
-              <View className="flex-row justify-between mb-2">
+              <View className="mb-2 flex-row justify-between">
                 <Text
-                  className="text-charcoal/60 text-xs font-bold uppercase tracking-wider"
-                  style={{ fontFamily: 'Geist_600SemiBold' }}
-                >
+                  className="text-xs font-bold uppercase tracking-wider text-charcoal/60"
+                  style={{ fontFamily: 'Geist_600SemiBold' }}>
                   Password
                 </Text>
                 <TouchableOpacity>
                   <Text
-                    className="text-[#0E7C7B] text-xs"
-                    style={{ fontFamily: 'Geist_600SemiBold' }}
-                  >
+                    className="text-xs text-[#0E7C7B]"
+                    style={{ fontFamily: 'Geist_600SemiBold' }}>
                     Forgot password?
                   </Text>
                 </TouchableOpacity>
@@ -130,8 +123,7 @@ export const LoginScreen = () => {
               <Input
                 variant="rounded"
                 size="lg"
-                className="bg-white border border-[#E5E0D8] rounded-xl h-13"
-              >
+                className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
                 <InputSlot className="pl-4">
                   <Ionicons name="lock-closed-outline" size={18} color="#9CA3AF" />
                 </InputSlot>
@@ -160,15 +152,13 @@ export const LoginScreen = () => {
               size="lg"
               onPress={handleLogin}
               isDisabled={loading}
-              style={{ height: 54, borderRadius: 14, backgroundColor: '#0E7C7B' }}
-            >
+              style={{ height: 54, borderRadius: 14, backgroundColor: '#0E7C7B' }}>
               {loading ? (
                 <ButtonSpinner color="#ffffff" />
               ) : (
                 <ButtonText
-                  className="text-white text-base"
-                  style={{ fontFamily: 'Geist_700Bold' }}
-                >
+                  className="text-base text-white"
+                  style={{ fontFamily: 'Geist_700Bold' }}>
                   Sign In
                 </ButtonText>
               )}
@@ -177,43 +167,38 @@ export const LoginScreen = () => {
 
           {/* Divider */}
           <View className="my-6 flex-row items-center">
-            <View className="h-[1px] bg-[#E5E0D8] flex-1" />
+            <View className="h-[1px] flex-1 bg-[#E5E0D8]" />
             <Text
-              className="text-charcoal/30 text-xs mx-4 uppercase tracking-wider"
-              style={{ fontFamily: 'Geist_500Medium' }}
-            >
+              className="mx-4 text-xs uppercase tracking-wider text-charcoal/30"
+              style={{ fontFamily: 'Geist_500Medium' }}>
               Or
             </Text>
-            <View className="h-[1px] bg-[#E5E0D8] flex-1" />
+            <View className="h-[1px] flex-1 bg-[#E5E0D8]" />
           </View>
 
           {/* Social */}
-          <View className="flex-row gap-3 mb-6">
+          <View className="mb-6 flex-row gap-3">
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 border-[#E5E0D8] rounded-xl bg-white"
-              style={{ height: 50 }}
-            >
-              <Text className="text-sm mr-1.5">G</Text>
+              className="flex-1 rounded-xl border-[#E5E0D8] bg-white"
+              style={{ height: 50 }}>
+              <Text className="mr-1.5 text-sm">G</Text>
               <ButtonText
-                className="text-charcoal text-sm"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="text-sm text-charcoal"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 Google
               </ButtonText>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 border-[#E5E0D8] rounded-xl bg-white"
-              style={{ height: 50 }}
-            >
-              <Text className="text-sm mr-1.5"></Text>
+              className="flex-1 rounded-xl border-[#E5E0D8] bg-white"
+              style={{ height: 50 }}>
+              <Text className="mr-1.5 text-sm"></Text>
               <ButtonText
-                className="text-charcoal text-sm"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="text-sm text-charcoal"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 Apple
               </ButtonText>
             </Button>
@@ -221,15 +206,9 @@ export const LoginScreen = () => {
 
           <View className="items-center">
             <TouchableOpacity onPress={() => router.push('/role-select')}>
-              <Text
-                className="text-charcoal/50 text-sm"
-                style={{ fontFamily: 'Geist_400Regular' }}
-              >
+              <Text className="text-sm text-charcoal/50" style={{ fontFamily: 'Geist_400Regular' }}>
                 New to Homelyn?{' '}
-                <Text
-                  className="text-[#0E7C7B]"
-                  style={{ fontFamily: 'Geist_600SemiBold' }}
-                >
+                <Text className="text-[#0E7C7B]" style={{ fontFamily: 'Geist_600SemiBold' }}>
                   Create an account
                 </Text>
               </Text>

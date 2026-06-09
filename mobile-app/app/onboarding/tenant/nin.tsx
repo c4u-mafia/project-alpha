@@ -31,7 +31,7 @@ export default function TenantNIN() {
         setLoading(false);
         return;
       }
-    } catch (_) {}
+    } catch {}
     setLoading(false);
     router.push('/onboarding/tenant/employment');
   };
@@ -45,27 +45,35 @@ export default function TenantNIN() {
       onNext={handleNext}
       onSkip={() => router.push('/onboarding/tenant/employment')}
       loading={loading}
-      canProceed={canProceed}
-    >
-      <View className="gap-4 mt-4">
-        <View className="bg-mint rounded-2xl p-4 flex-row gap-3">
+      canProceed={canProceed}>
+      <View className="mt-4 gap-4">
+        <View className="flex-row gap-3 rounded-2xl bg-mint p-4">
           <Ionicons name="shield-checkmark-outline" size={20} color="#0E7C7B" />
-          <Text className="text-[#0E7C7B] text-[13px] flex-1 leading-5" style={{ fontFamily: 'Geist_400Regular' }}>
+          <Text
+            className="flex-1 text-[13px] leading-5 text-[#0E7C7B]"
+            style={{ fontFamily: 'Geist_400Regular' }}>
             Your NIN is encrypted and stored securely. We comply with NDPC guidelines.
           </Text>
         </View>
 
         {error ? (
-          <View className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-            <Text className="text-red-600 text-sm" style={{ fontFamily: 'Geist_500Medium' }}>{error}</Text>
+          <View className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+            <Text className="text-sm text-red-600" style={{ fontFamily: 'Geist_500Medium' }}>
+              {error}
+            </Text>
           </View>
         ) : null}
 
         <View>
-          <Text className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2" style={{ fontFamily: 'Geist_600SemiBold' }}>
+          <Text
+            className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             National Identification Number (NIN)
           </Text>
-          <Input variant="rounded" size="lg" className="bg-white border border-[#E5E0D8] rounded-xl h-13">
+          <Input
+            variant="rounded"
+            size="lg"
+            className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
             <InputSlot className="pl-4">
               <Ionicons name="card-outline" size={18} color="#9CA3AF" />
             </InputSlot>
@@ -75,17 +83,19 @@ export default function TenantNIN() {
               onChangeText={(v) => setNin(v.replace(/[^0-9]/g, '').slice(0, 11))}
               keyboardType="number-pad"
               maxLength={11}
-              className="text-charcoal tracking-widest"
+              className="tracking-widest text-charcoal"
               placeholderTextColor="#C0BBC4"
               style={{ fontFamily: 'Geist_400Regular' }}
             />
             <InputSlot className="pr-4">
-              <Text className="text-charcoal/30 text-xs" style={{ fontFamily: 'Geist_500Medium' }}>
+              <Text className="text-xs text-charcoal/30" style={{ fontFamily: 'Geist_500Medium' }}>
                 {nin.length}/11
               </Text>
             </InputSlot>
           </Input>
-          <Text className="text-charcoal/40 text-xs mt-2 ml-1" style={{ fontFamily: 'Geist_400Regular' }}>
+          <Text
+            className="ml-1 mt-2 text-xs text-charcoal/40"
+            style={{ fontFamily: 'Geist_400Regular' }}>
             11-digit number on your National ID card
           </Text>
         </View>

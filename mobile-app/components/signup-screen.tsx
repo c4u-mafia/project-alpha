@@ -59,11 +59,10 @@ export const SignupScreen = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-cream"
-    >
+      className="flex-1 bg-cream">
       <StatusBar barStyle="dark-content" backgroundColor="#FAF7F2" />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-        <View className="flex-1 px-6 pt-14 pb-8">
+        <View className="flex-1 px-6 pb-8 pt-14">
           {/* Back */}
           <TouchableOpacity onPress={() => router.back()} className="mb-8 self-start">
             <Ionicons name="arrow-back" size={24} color="#1A2332" />
@@ -72,20 +71,15 @@ export const SignupScreen = () => {
           {/* Header */}
           <Animated.View entering={FadeInDown.delay(100).duration(600)} className="mb-8">
             <Text
-              className="text-charcoal text-[28px] leading-[36px] mb-2"
-              style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}
-            >
+              className="mb-2 text-[28px] leading-[36px] text-charcoal"
+              style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.5 }}>
               Create your{'\n'}account
             </Text>
             <Text
-              className="text-charcoal/50 text-[15px]"
-              style={{ fontFamily: 'Geist_400Regular' }}
-            >
+              className="text-[15px] text-charcoal/50"
+              style={{ fontFamily: 'Geist_400Regular' }}>
               Joining as a{' '}
-              <Text
-                className="text-[#0E7C7B]"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+              <Text className="text-[#0E7C7B]" style={{ fontFamily: 'Geist_600SemiBold' }}>
                 {role}
               </Text>
             </Text>
@@ -94,8 +88,8 @@ export const SignupScreen = () => {
           {/* Form */}
           <Animated.View entering={FadeInDown.delay(200).duration(600)} className="gap-4">
             {errorMsg ? (
-              <View className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                <Text className="text-red-600 text-sm" style={{ fontFamily: 'Geist_500Medium' }}>
+              <View className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <Text className="text-sm text-red-600" style={{ fontFamily: 'Geist_500Medium' }}>
                   {errorMsg}
                 </Text>
               </View>
@@ -103,16 +97,14 @@ export const SignupScreen = () => {
 
             <View>
               <Text
-                className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 Full Name
               </Text>
               <Input
                 variant="rounded"
                 size="lg"
-                className="bg-white border border-[#E5E0D8] rounded-xl h-13"
-              >
+                className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
                 <InputSlot className="pl-4">
                   <Ionicons name="person-outline" size={18} color="#9CA3AF" />
                 </InputSlot>
@@ -129,16 +121,14 @@ export const SignupScreen = () => {
 
             <View>
               <Text
-                className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 Email Address
               </Text>
               <Input
                 variant="rounded"
                 size="lg"
-                className="bg-white border border-[#E5E0D8] rounded-xl h-13"
-              >
+                className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
                 <InputSlot className="pl-4">
                   <Ionicons name="mail-outline" size={18} color="#9CA3AF" />
                 </InputSlot>
@@ -157,16 +147,14 @@ export const SignupScreen = () => {
 
             <View>
               <Text
-                className="text-charcoal/60 text-xs font-bold uppercase tracking-wider mb-2"
-                style={{ fontFamily: 'Geist_600SemiBold' }}
-              >
+                className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
+                style={{ fontFamily: 'Geist_600SemiBold' }}>
                 Password
               </Text>
               <Input
                 variant="rounded"
                 size="lg"
-                className="bg-white border border-[#E5E0D8] rounded-xl h-13"
-              >
+                className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
                 <InputSlot className="pl-4">
                   <Ionicons name="lock-closed-outline" size={18} color="#9CA3AF" />
                 </InputSlot>
@@ -195,15 +183,13 @@ export const SignupScreen = () => {
               size="lg"
               onPress={handleSignup}
               isDisabled={loading}
-              style={{ height: 54, borderRadius: 14, backgroundColor: '#0E7C7B' }}
-            >
+              style={{ height: 54, borderRadius: 14, backgroundColor: '#0E7C7B' }}>
               {loading ? (
                 <ButtonSpinner color="#ffffff" />
               ) : (
                 <ButtonText
-                  className="text-white text-base"
-                  style={{ fontFamily: 'Geist_700Bold' }}
-                >
+                  className="text-base text-white"
+                  style={{ fontFamily: 'Geist_700Bold' }}>
                   Create Account
                 </ButtonText>
               )}
@@ -212,18 +198,11 @@ export const SignupScreen = () => {
 
           <Animated.View
             entering={FadeInDown.delay(450).duration(600)}
-            className="mt-6 items-center"
-          >
+            className="mt-6 items-center">
             <TouchableOpacity onPress={() => router.push('/login')}>
-              <Text
-                className="text-charcoal/50 text-sm"
-                style={{ fontFamily: 'Geist_400Regular' }}
-              >
+              <Text className="text-sm text-charcoal/50" style={{ fontFamily: 'Geist_400Regular' }}>
                 Already have an account?{' '}
-                <Text
-                  className="text-[#0E7C7B]"
-                  style={{ fontFamily: 'Geist_600SemiBold' }}
-                >
+                <Text className="text-[#0E7C7B]" style={{ fontFamily: 'Geist_600SemiBold' }}>
                   Sign in
                 </Text>
               </Text>

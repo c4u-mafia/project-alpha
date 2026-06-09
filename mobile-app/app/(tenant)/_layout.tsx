@@ -21,8 +21,7 @@ function TabIcon({
           fontSize: 10,
           color: focused ? '#0E7C7B' : '#A0A0A8',
           marginTop: 2,
-        }}
-      >
+        }}>
         {label}
       </Text>
     </View>
@@ -44,8 +43,7 @@ export default function TenantLayout() {
           elevation: 0,
           shadowOpacity: 0,
         },
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -58,7 +56,11 @@ export default function TenantLayout() {
         name="search"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? 'search' : 'search-outline'} focused={focused} label="Search" />
+            <TabIcon
+              name={focused ? 'search' : 'search-outline'}
+              focused={focused}
+              label="Search"
+            />
           ),
         }}
       />

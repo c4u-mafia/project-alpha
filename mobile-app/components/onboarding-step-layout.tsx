@@ -36,17 +36,16 @@ export const OnboardingStepLayout = ({
       <StatusBar barStyle="dark-content" backgroundColor="#FAF7F2" />
 
       {/* Fixed header */}
-      <View className="px-6 pt-14 pb-4">
-        <View className="flex-row items-center justify-between mb-5">
-          <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+      <View className="px-6 pb-4 pt-14">
+        <View className="mb-5 flex-row items-center justify-between">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="h-10 w-10 items-center justify-center">
             <Ionicons name="arrow-back" size={22} color="#1A2332" />
           </TouchableOpacity>
           {onSkip && (
             <TouchableOpacity onPress={onSkip}>
-              <Text
-                className="text-charcoal/40 text-sm"
-                style={{ fontFamily: 'Geist_500Medium' }}
-              >
+              <Text className="text-sm text-charcoal/40" style={{ fontFamily: 'Geist_500Medium' }}>
                 Skip for now
               </Text>
             </TouchableOpacity>
@@ -54,7 +53,7 @@ export const OnboardingStepLayout = ({
         </View>
 
         {/* Progress bar */}
-        <View className="flex-row gap-1.5 mb-6">
+        <View className="mb-6 flex-row gap-1.5">
           {Array.from({ length: total }).map((_, i) => (
             <View
               key={i}
@@ -70,22 +69,19 @@ export const OnboardingStepLayout = ({
 
         <Animated.View entering={FadeInDown.delay(100).duration(500)}>
           <Text
-            className="text-charcoal/40 text-xs uppercase tracking-widest mb-1"
-            style={{ fontFamily: 'Geist_600SemiBold' }}
-          >
+            className="mb-1 text-xs uppercase tracking-widest text-charcoal/40"
+            style={{ fontFamily: 'Geist_600SemiBold' }}>
             Step {step} of {total}
           </Text>
           <Text
-            className="text-charcoal text-[24px] leading-[32px]"
-            style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.3 }}
-          >
+            className="text-[24px] leading-[32px] text-charcoal"
+            style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.3 }}>
             {title}
           </Text>
           {subtitle && (
             <Text
-              className="text-charcoal/50 text-[14px] mt-1.5 leading-5"
-              style={{ fontFamily: 'Geist_400Regular' }}
-            >
+              className="mt-1.5 text-[14px] leading-5 text-charcoal/50"
+              style={{ fontFamily: 'Geist_400Regular' }}>
               {subtitle}
             </Text>
           )}
@@ -97,15 +93,12 @@ export const OnboardingStepLayout = ({
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View entering={FadeInDown.delay(200).duration(500)}>
-          {children}
-        </Animated.View>
+        showsVerticalScrollIndicator={false}>
+        <Animated.View entering={FadeInDown.delay(200).duration(500)}>{children}</Animated.View>
       </ScrollView>
 
       {/* Fixed bottom CTA */}
-      <View className="px-6 pb-8 pt-4 border-t border-[#F0EBE4]">
+      <View className="border-t border-[#F0EBE4] px-6 pb-8 pt-4">
         <Button
           size="lg"
           onPress={onNext}
@@ -114,15 +107,11 @@ export const OnboardingStepLayout = ({
             height: 54,
             borderRadius: 14,
             backgroundColor: canProceed ? '#0E7C7B' : '#D0CCC6',
-          }}
-        >
+          }}>
           {loading ? (
             <ButtonSpinner color="#ffffff" />
           ) : (
-            <ButtonText
-              className="text-white text-base"
-              style={{ fontFamily: 'Geist_700Bold' }}
-            >
+            <ButtonText className="text-base text-white" style={{ fontFamily: 'Geist_700Bold' }}>
               {nextLabel}
             </ButtonText>
           )}
