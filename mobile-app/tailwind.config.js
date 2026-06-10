@@ -224,7 +224,7 @@ module.exports = {
         '2xs': '10px',
       },
       spacing: {
-        '13': '52px',
+        13: '52px',
       },
       boxShadow: {
         'hard-1': '-2px 2px 8px 0px rgba(38, 38, 38, 0.20)',

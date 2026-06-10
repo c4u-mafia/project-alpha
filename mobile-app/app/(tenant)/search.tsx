@@ -1,125 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/ui/text';
-import { ListingCard, Listing } from '@/components/listing-card';
+import { ListingCard } from '@/components/listing-card';
 import { Button, ButtonText } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  useSearchListings,
+  useSavedListings,
+  useSaveListing,
+  useUnsaveListing,
+  apiListingToCard,
+  ApiListing,
+} from '@/hooks/use-api';
 
-const ALL_LISTINGS: Listing[] = [
-  {
-    id: '1',
-    title: '3 Bed Apartment, Admiralty Way',
-    area: 'Lekki Phase 1',
-    city: 'Lagos',
-    annualRentKobo: 280000000,
-    bedrooms: 3,
-    bathrooms: 2,
-    type: 'apartment',
-    photos: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600'],
-    isVerified: true,
-    landlordName: 'Mr. Adeyemi',
-  },
-  {
-    id: '2',
-    title: 'Modern 2 Bed Flat, Opebi',
-    area: 'Ikeja',
-    city: 'Lagos',
-    annualRentKobo: 150000000,
-    bedrooms: 2,
-    bathrooms: 2,
-    type: 'flat',
-    photos: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600'],
-    isVerified: true,
-    landlordName: 'Mrs. Nwosu',
-  },
-  {
-    id: '3',
-    title: 'Studio, GRA Phase 2',
-    area: 'GRA Phase 2',
-    city: 'Port Harcourt',
-    annualRentKobo: 72000000,
-    bedrooms: 1,
-    bathrooms: 1,
-    type: 'studio',
-    photos: [],
-    isVerified: false,
-    landlordName: 'Mr. Chukwu',
-  },
-  {
-    id: '4',
-    title: 'Luxury 4 Bed Duplex, VI',
-    area: 'Victoria Island',
-    city: 'Lagos',
-    annualRentKobo: 600000000,
-    bedrooms: 4,
-    bathrooms: 4,
-    type: 'duplex',
-    photos: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600'],
-    isVerified: true,
-    landlordName: 'Prestige Properties',
-  },
-  {
-    id: '5',
-    title: '2 Bedroom Flat, Yaba',
-    area: 'Yaba',
-    city: 'Lagos',
-    annualRentKobo: 110000000,
-    bedrooms: 2,
-    bathrooms: 1,
-    type: 'flat',
-    photos: ['https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600'],
-    isVerified: true,
-    landlordName: 'Mr. Obi',
-  },
-  {
-    id: '6',
-    title: '1 Bed Serviced Apartment',
-    area: 'Lekki Phase 2',
-    city: 'Lagos',
-    annualRentKobo: 180000000,
-    bedrooms: 1,
-    bathrooms: 1,
-    type: 'apartment',
-    photos: [],
-    isVerified: false,
-    landlordName: 'Lagos Homes',
-  },
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+const SearchCardSkeleton = () => (
+  <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: 'white' }}>
+    <Skeleton style={{ height: 180, width: '100%', borderRadius: 0 }} />
+    <View style={{ padding: 14, gap: 10 }}>
+      <Skeleton style={{ height: 15, width: '75%', borderRadius: 6 }} />
+      <Skeleton style={{ height: 12, width: '50%', borderRadius: 6 }} />
+      <Skeleton style={{ height: 18, width: '40%', borderRadius: 6 }} />
+    </View>
+  </View>
+);
+
+// ─── Filter chip → API param mapping ─────────────────────────────────────────
+
+type FilterChip = 'All' | 'Verified' | 'Apartments' | 'Flats' | '1 Bed' | '2 Beds' | '3+ Beds';
+const FILTER_CHIPS: FilterChip[] = [
+  'All',
+  'Verified',
+  'Apartments',
+  'Flats',
+  '1 Bed',
+  '2 Beds',
+  '3+ Beds',
 ];
 
-const FILTER_CHIPS = ['All', 'Verified', 'Apartments', 'Flats', '1 Bed', '2 Beds', '3+ Beds'];
+function chipToParams(chip: FilterChip): { type?: string; bedrooms?: number } {
+  switch (chip) {
+    case 'Apartments':
+      return { type: 'apartment' };
+    case 'Flats':
+      return { type: 'flat' };
+    case '1 Bed':
+      return { bedrooms: 1 };
+    case '2 Beds':
+      return { bedrooms: 2 };
+    case '3+ Beds':
+      return { bedrooms: 3 };
+    default:
+      return {};
+  }
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function TenantSearch() {
   const [query, setQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState<FilterChip>('All');
   const [showModal, setShowModal] = useState(false);
   const [minRent, setMinRent] = useState('');
   const [maxRent, setMaxRent] = useState('');
-  const [savedIds, setSavedIds] = useState<string[]>([]);
+
+  const filterParams = chipToParams(activeFilter);
+  const { data, isLoading, isError, refetch } = useSearchListings({
+    q: query || undefined,
+    minRent: minRent ? Number(minRent) : undefined,
+    maxRent: maxRent ? Number(maxRent) : undefined,
+    ...filterParams,
+    limit: 30,
+  });
+
+  const { data: savedListings } = useSavedListings();
+  const saveMutation = useSaveListing();
+  const unsaveMutation = useUnsaveListing();
+
+  const savedIds = useMemo(() => savedListings?.map((l) => l.id) ?? [], [savedListings]);
+  const toCard = useCallback((l: ApiListing) => apiListingToCard(l, savedIds), [savedIds]);
 
   const toggleSave = (id: string) => {
-    setSavedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    if (savedIds.includes(id)) {
+      unsaveMutation.mutate(id);
+    } else {
+      saveMutation.mutate(id);
+    }
   };
 
-  const filteredListings = ALL_LISTINGS.filter((l) => {
-    const q = query.toLowerCase();
-    const matchesQuery =
-      !q ||
-      l.title.toLowerCase().includes(q) ||
-      l.area.toLowerCase().includes(q) ||
-      l.city.toLowerCase().includes(q);
-    const matchesVerified = activeFilter !== 'Verified' || l.isVerified;
-    const matchesType =
-      !['Apartments', 'Flats'].includes(activeFilter) ||
-      (activeFilter === 'Apartments' && l.type === 'apartment') ||
-      (activeFilter === 'Flats' && l.type === 'flat');
-    const matchesBed =
-      !['1 Bed', '2 Beds', '3+ Beds'].includes(activeFilter) ||
-      (activeFilter === '1 Bed' && l.bedrooms === 1) ||
-      (activeFilter === '2 Beds' && l.bedrooms === 2) ||
-      (activeFilter === '3+ Beds' && l.bedrooms >= 3);
-    return matchesQuery && matchesVerified && matchesType && matchesBed;
-  });
+  const listings = data?.data ?? [];
 
   return (
     <View className="flex-1 bg-cream">
@@ -214,20 +186,46 @@ export default function TenantSearch() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 30, gap: 14 }}
         showsVerticalScrollIndicator={false}>
-        <Text className="mb-1 text-sm text-charcoal/40" style={{ fontFamily: 'Geist_500Medium' }}>
-          {filteredListings.length} homes found
-        </Text>
+        {!isLoading && !isError && (
+          <Text className="mb-1 text-sm text-charcoal/40" style={{ fontFamily: 'Geist_500Medium' }}>
+            {listings.length} home{listings.length !== 1 ? 's' : ''} found
+          </Text>
+        )}
 
-        {filteredListings.map((listing, i) => (
-          <Animated.View key={listing.id} entering={FadeInDown.delay(i * 50).duration(400)}>
-            <ListingCard
-              listing={{ ...listing, isSaved: savedIds.includes(listing.id) }}
-              onSave={() => toggleSave(listing.id)}
-            />
-          </Animated.View>
-        ))}
+        {isLoading && (
+          <>
+            <SearchCardSkeleton />
+            <SearchCardSkeleton />
+            <SearchCardSkeleton />
+            <SearchCardSkeleton />
+          </>
+        )}
 
-        {filteredListings.length === 0 && (
+        {isError && (
+          <View className="items-center py-16">
+            <Ionicons name="cloud-offline-outline" size={40} color="#C0BBC4" />
+            <Text
+              className="mt-3 text-center text-base text-charcoal"
+              style={{ fontFamily: 'Geist_600SemiBold' }}>
+              Search unavailable
+            </Text>
+            <TouchableOpacity onPress={() => refetch()} style={{ marginTop: 12 }}>
+              <Text style={{ fontFamily: 'Geist_600SemiBold', color: '#0E7C7B', fontSize: 14 }}>
+                Retry
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {!isLoading &&
+          !isError &&
+          listings.map((listing, i) => (
+            <Animated.View key={listing.id} entering={FadeInDown.delay(i * 40).duration(400)}>
+              <ListingCard listing={toCard(listing)} onSave={() => toggleSave(listing.id)} />
+            </Animated.View>
+          ))}
+
+        {!isLoading && !isError && listings.length === 0 && (
           <View className="items-center py-16">
             <Text style={{ fontSize: 48, marginBottom: 12 }}>🔍</Text>
             <Text

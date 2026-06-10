@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, View } from 'react-native';
 
 interface SkeletonProps {
@@ -11,7 +11,7 @@ export const Skeleton = ({
   variant = 'rounded',
   ...props
 }: SkeletonProps & React.ComponentPropsWithoutRef<typeof View>) => {
-  const pulseAnim = useRef(new Animated.Value(0.3)).current;
+  const [pulseAnim] = useState(() => new Animated.Value(0.3));
 
   useEffect(() => {
     const pulse = Animated.loop(
@@ -66,11 +66,7 @@ export const SkeletonText = ({
   return (
     <View className={`gap-2 ${className || ''}`} {...props}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          className="h-4 w-full"
-          variant="rounded"
-        />
+        <Skeleton key={i} className="h-4 w-full" variant="rounded" />
       ))}
     </View>
   );

@@ -79,8 +79,7 @@ export const Onboarding = memo(({ onFinish }: { onFinish: () => void }) => {
                   bottom: 0,
                 }}
                 width="100%"
-                height="100%"
-              >
+                height="100%">
                 <Defs>
                   <SvgLinearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
                     <Stop offset="0%" stopColor="#000000" stopOpacity={0.25} />
