@@ -10,31 +10,32 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { authClient } from '../lib/auth-client';
 import { router } from 'expo-router';
-import { useGlobalStore } from '../store/global-store';
 import { Text } from './ui/text';
 import { Input, InputField, InputSlot } from './ui/input';
 import { Button, ButtonText, ButtonSpinner } from './ui/button';
 import { Ionicons } from '@expo/vector-icons';
 
 export const LoginScreen = () => {
-  const { setRole } = useGlobalStore();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = async () => {
+  const handleSendOtp = async () => {
+    if (!email.trim()) {
+      setErrorMsg('Please enter your email address');
+      return;
+    }
     setErrorMsg('');
     setLoading(true);
     try {
-      const { data, error } = await authClient.signIn.email({ email, password });
+      const { error } = await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: 'sign-in',
+      });
       if (error) {
-        setErrorMsg(error.message || 'Login failed');
+        setErrorMsg(error.message || 'Failed to send code');
       } else {
-        const userRole = (data?.user as any)?.role ?? 'tenant';
-        setRole(userRole);
-        router.replace(userRole === 'landlord' ? '/(landlord)' : '/(tenant)');
+        router.push({ pathname: '/verify-otp', params: { email, mode: 'sign-in' } });
       }
     } catch (e: any) {
       setErrorMsg(e.message || 'An error occurred');
@@ -65,7 +66,7 @@ export const LoginScreen = () => {
             <Text
               className="text-[15px] text-charcoal/50"
               style={{ fontFamily: 'Geist_400Regular' }}>
-              Sign in to continue to Homelyn
+              {"We'll send a code to your email to sign you in"}
             </Text>
           </Animated.View>
 
@@ -98,51 +99,12 @@ export const LoginScreen = () => {
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  returnKeyType="done"
+                  onSubmitEditing={handleSendOtp}
                   className="text-charcoal"
                   placeholderTextColor="#C0BBC4"
                   style={{ fontFamily: 'Geist_400Regular' }}
                 />
-              </Input>
-            </View>
-
-            <View>
-              <View className="mb-2 flex-row justify-between">
-                <Text
-                  className="text-xs font-bold uppercase tracking-wider text-charcoal/60"
-                  style={{ fontFamily: 'Geist_600SemiBold' }}>
-                  Password
-                </Text>
-                <TouchableOpacity>
-                  <Text
-                    className="text-xs text-[#0E7C7B]"
-                    style={{ fontFamily: 'Geist_600SemiBold' }}>
-                    Forgot password?
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <Input
-                variant="rounded"
-                size="lg"
-                className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
-                <InputSlot className="pl-4">
-                  <Ionicons name="lock-closed-outline" size={18} color="#9CA3AF" />
-                </InputSlot>
-                <InputField
-                  placeholder="Your password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  className="text-charcoal"
-                  placeholderTextColor="#C0BBC4"
-                  style={{ fontFamily: 'Geist_400Regular' }}
-                />
-                <InputSlot className="pr-4" onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    size={18}
-                    color="#9CA3AF"
-                  />
-                </InputSlot>
               </Input>
             </View>
           </Animated.View>
@@ -150,16 +112,20 @@ export const LoginScreen = () => {
           <Animated.View entering={FadeInDown.delay(350).duration(600)} className="mt-6">
             <Button
               size="lg"
-              onPress={handleLogin}
-              isDisabled={loading}
-              style={{ height: 54, borderRadius: 14, backgroundColor: '#0E7C7B' }}>
+              onPress={handleSendOtp}
+              isDisabled={loading || !email.trim()}
+              style={{
+                height: 54,
+                borderRadius: 14,
+                backgroundColor: email.trim() ? '#0E7C7B' : '#D0CCC6',
+              }}>
               {loading ? (
                 <ButtonSpinner color="#ffffff" />
               ) : (
                 <ButtonText
                   className="text-base text-white"
                   style={{ fontFamily: 'Geist_700Bold' }}>
-                  Sign In
+                  Send Code
                 </ButtonText>
               )}
             </Button>

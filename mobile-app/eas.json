@@ -18,21 +18,21 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "APP_VARIANT": "preview"
+        "APP_VARIANT": "preview",
+        "PREVIEW_API_URL": "https://homelyn-backend-production.up.railway.app"
       },
       "android": {
-        "buildType": "apk",
-        "ccache": true
+        "buildType": "apk"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "APP_VARIANT": "production"
+        "APP_VARIANT": "production",
+        "PRODUCTION_API_URL": "https://homelyn-backend-production.up.railway.app"
       },
       "android": {
-        "buildType": "apk",
-        "ccache": true
+        "buildType": "apk"
       }
     }
   }

@@ -10,11 +10,13 @@ const appPackage = IS_DEV
     ? 'com.homelyn.preview'
     : 'com.homelyn.app';
 
+const RAILWAY_URL = 'https://homelyn-backend-production.up.railway.app';
+
 const apiUrl = IS_DEV
   ? 'http://10.0.2.2:3001' // Android emulator → host machine
   : IS_PREVIEW
-    ? process.env.PREVIEW_API_URL ?? 'https://api-staging.up.railway.app'
-    : process.env.PRODUCTION_API_URL ?? 'https://api.homelyn.ng';
+    ? process.env.PREVIEW_API_URL ?? RAILWAY_URL
+    : process.env.PRODUCTION_API_URL ?? RAILWAY_URL;
 
 /** @type {import('@expo/config').ExpoConfig} */
 module.exports = {

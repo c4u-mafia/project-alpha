@@ -18,7 +18,9 @@ import { Ionicons } from '@expo/vector-icons';
 const OTP_LENGTH = 6;
 
 export const OTPVerifyScreen = () => {
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email, mode } = useLocalSearchParams<{ email: string; mode: 'verify' | 'sign-in' }>();
+  const isSignIn = mode === 'sign-in';
+
   const { role, setRole } = useGlobalStore();
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [loading, setLoading] = useState(false);
@@ -57,21 +59,39 @@ export const OTPVerifyScreen = () => {
     setErrorMsg('');
     setLoading(true);
     try {
-      const { error } = await authClient.emailOtp.verifyEmail({
-        email: email!,
-        otp: finalCode,
-      });
-      if (error) {
-        setErrorMsg('Invalid or expired code. Try again.');
-        setOtp(Array(OTP_LENGTH).fill(''));
-        inputRefs.current[0]?.focus();
+      if (isSignIn) {
+        const { data, error } = await authClient.signIn.emailOtp({
+          email: email!,
+          otp: finalCode,
+        });
+        if (error) {
+          setErrorMsg('Invalid or expired code. Try again.');
+          setOtp(Array(OTP_LENGTH).fill(''));
+          inputRefs.current[0]?.focus();
+        } else {
+          const userRole = (data?.user as any)?.role ?? role;
+          setRole(userRole);
+          router.replace(userRole === 'landlord' ? '/(landlord)' : '/(tenant)');
+        }
       } else {
-        const session = await authClient.getSession();
-        const userRole = (session?.data?.user as any)?.role ?? role;
-        setRole(userRole);
-        router.replace(
-          userRole === 'landlord' ? '/onboarding/landlord/profile' : '/onboarding/tenant/basic-info'
-        );
+        const { error } = await authClient.emailOtp.verifyEmail({
+          email: email!,
+          otp: finalCode,
+        });
+        if (error) {
+          setErrorMsg('Invalid or expired code. Try again.');
+          setOtp(Array(OTP_LENGTH).fill(''));
+          inputRefs.current[0]?.focus();
+        } else {
+          const session = await authClient.getSession();
+          const userRole = (session?.data?.user as any)?.role ?? role;
+          setRole(userRole);
+          router.replace(
+            userRole === 'landlord'
+              ? '/onboarding/landlord/profile'
+              : '/onboarding/tenant/basic-info'
+          );
+        }
       }
     } catch (e: any) {
       setErrorMsg(e.message || 'Verification failed');
@@ -85,7 +105,7 @@ export const OTPVerifyScreen = () => {
     setResendTimer(59);
     await authClient.emailOtp.sendVerificationOtp({
       email: email!,
-      type: 'email-verification',
+      type: isSignIn ? 'sign-in' : 'email-verification',
     });
   };
 
@@ -170,7 +190,7 @@ export const OTPVerifyScreen = () => {
               <ButtonSpinner color="#ffffff" />
             ) : (
               <ButtonText className="text-base text-white" style={{ fontFamily: 'Geist_700Bold' }}>
-                Verify Email
+                {isSignIn ? 'Sign In' : 'Verify Email'}
               </ButtonText>
             )}
           </Button>

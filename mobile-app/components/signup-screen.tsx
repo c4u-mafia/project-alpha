@@ -16,18 +16,19 @@ import { Input, InputField, InputSlot } from './ui/input';
 import { Button, ButtonText, ButtonSpinner } from './ui/button';
 import { Ionicons } from '@expo/vector-icons';
 
+const randomPassword = () =>
+  Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2).toUpperCase() + '!';
+
 export const SignupScreen = () => {
   const { role } = useGlobalStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSignup = async () => {
     setErrorMsg('');
-    if (!name.trim() || !email.trim() || !password.trim()) {
+    if (!name.trim() || !email.trim()) {
       setErrorMsg('Please fill in all fields');
       return;
     }
@@ -35,7 +36,7 @@ export const SignupScreen = () => {
     try {
       const { error } = await authClient.signUp.email({
         email,
-        password,
+        password: randomPassword(),
         name,
         role,
       } as any);
@@ -47,7 +48,7 @@ export const SignupScreen = () => {
           email,
           type: 'email-verification',
         });
-        router.push({ pathname: '/verify-otp', params: { email } });
+        router.push({ pathname: '/verify-otp', params: { email, mode: 'verify' } });
       }
     } catch (e: any) {
       setErrorMsg(e.message || 'An error occurred');
@@ -112,6 +113,7 @@ export const SignupScreen = () => {
                   placeholder="Chioma Okafor"
                   value={name}
                   onChangeText={setName}
+                  returnKeyType="next"
                   className="text-charcoal"
                   placeholderTextColor="#C0BBC4"
                   style={{ fontFamily: 'Geist_400Regular' }}
@@ -138,44 +140,20 @@ export const SignupScreen = () => {
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  returnKeyType="done"
+                  onSubmitEditing={handleSignup}
                   className="text-charcoal"
                   placeholderTextColor="#C0BBC4"
                   style={{ fontFamily: 'Geist_400Regular' }}
                 />
               </Input>
             </View>
+          </Animated.View>
 
-            <View>
-              <Text
-                className="mb-2 text-xs font-bold uppercase tracking-wider text-charcoal/60"
-                style={{ fontFamily: 'Geist_600SemiBold' }}>
-                Password
-              </Text>
-              <Input
-                variant="rounded"
-                size="lg"
-                className="h-13 rounded-xl border border-[#E5E0D8] bg-white">
-                <InputSlot className="pl-4">
-                  <Ionicons name="lock-closed-outline" size={18} color="#9CA3AF" />
-                </InputSlot>
-                <InputField
-                  placeholder="Min. 8 characters"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  className="text-charcoal"
-                  placeholderTextColor="#C0BBC4"
-                  style={{ fontFamily: 'Geist_400Regular' }}
-                />
-                <InputSlot className="pr-4" onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    size={18}
-                    color="#9CA3AF"
-                  />
-                </InputSlot>
-              </Input>
-            </View>
+          <Animated.View entering={FadeInDown.delay(300).duration(600)} className="mt-2 px-1">
+            <Text className="text-xs text-charcoal/40" style={{ fontFamily: 'Geist_400Regular' }}>
+              {"We'll email you a verification code. No password needed."}
+            </Text>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(350).duration(600)} className="mt-6">
