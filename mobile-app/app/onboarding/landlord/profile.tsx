@@ -36,7 +36,7 @@ export default function LandlordProfile() {
     try {
       const token = await authClient.getSession();
       const jwt = (token?.data as any)?.session?.token;
-      await fetch('http://localhost:3001/onboarding/landlord/profile', {
+      await fetch('http://localhost:3000/onboarding/landlord/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({

@@ -20,7 +20,7 @@ export default function TenantNIN() {
     try {
       const token = await authClient.getSession();
       const jwt = (token?.data as any)?.session?.token;
-      const res = await fetch('http://localhost:3001/onboarding/tenant/nin', {
+      const res = await fetch('http://localhost:3000/onboarding/tenant/nin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({ nin }),

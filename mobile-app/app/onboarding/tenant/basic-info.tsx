@@ -23,7 +23,7 @@ export default function TenantBasicInfo() {
     try {
       const token = await authClient.getSession();
       const jwt = (token?.data as any)?.session?.token;
-      await fetch('http://localhost:3001/me/profile', {
+      await fetch('http://localhost:3000/me/profile', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

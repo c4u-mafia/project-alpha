@@ -50,7 +50,7 @@ export default function LandlordDocuments() {
       const jwt = (token?.data as any)?.session?.token;
       await Promise.all(
         docs.map((doc) =>
-          fetch('http://localhost:3001/onboarding/landlord/documents', {
+          fetch('http://localhost:3000/onboarding/landlord/documents', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
             body: JSON.stringify({ type: doc.type, documentUrl: doc.url }),
