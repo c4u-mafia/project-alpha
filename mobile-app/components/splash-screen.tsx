@@ -9,7 +9,10 @@ import Animated, {
   withSequence,
   runOnJS,
 } from 'react-native-reanimated';
+import Svg, { Rect, Path, Circle } from 'react-native-svg';
 import { Text } from './ui/text';
+
+import { SplashLogo } from './splash-logo';
 
 export const SplashScreen = ({ onNext }: { onNext: () => void }) => {
   const logoOpacity = useSharedValue(0);
@@ -52,14 +55,9 @@ export const SplashScreen = ({ onNext }: { onNext: () => void }) => {
       <StatusBar barStyle="light-content" backgroundColor="#0E7C7B" />
 
       <Animated.View style={logoStyle} className="items-center">
-        <View className="mb-5 h-20 w-20 items-center justify-center rounded-3xl bg-white/15">
-          <View className="h-12 w-12 items-center justify-center rounded-2xl bg-white">
-            <Text
-              className="text-2xl font-bold text-[#0E7C7B]"
-              style={{ fontFamily: 'Geist_700Bold' }}>
-              H
-            </Text>
-          </View>
+        {/* Homelyn house logo mark — matches design SVG exactly */}
+        <View className="mb-5 items-center justify-center">
+          <SplashLogo />
         </View>
         <Text
           className="text-4xl tracking-tight text-white"

@@ -1,23 +1,47 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
+import Svg, { Rect, Path, Circle } from 'react-native-svg';
+import { Text } from './ui/text';
 
-export const Logo = ({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) => {
-  const iconSize = size === 'lg' ? 80 : size === 'md' ? 60 : 40;
-  const textSize = size === 'lg' ? 'text-4xl' : size === 'md' ? 'text-3xl' : 'text-2xl';
+interface LogoProps {
+  size?: 'sm' | 'md' | 'lg';
+  /** If true, renders for dark/teal background (cream house). If false, renders for light background (teal house). */
+  light?: boolean;
+}
+
+export const Logo = ({ size = 'md', light = false }: LogoProps) => {
+  const iconSize = size === 'lg' ? 56 : size === 'md' ? 44 : 32;
+  const viewBox = '-8 -2 96 88';
+  const textSize = size === 'lg' ? 'text-4xl' : size === 'md' ? 'text-3xl' : 'text-xl';
+
+  // On dark/teal backgrounds: house is cream, chevron is teal
+  // On light backgrounds: house is teal, chevron is cream
+  const houseFill = light ? '#FAF7F2' : '#0E7C7B';
+  const chevronStroke = light ? '#0E7C7B' : '#FAF7F2';
+  const textColor = light ? 'text-white' : 'text-charcoal';
 
   return (
     <View className="items-center justify-center">
-      <View
-        className="mb-4 items-center justify-center rounded-3xl bg-[#006970]/20 p-4"
-        style={{ width: iconSize, height: iconSize }}>
-        <View className="h-full w-full flex-row flex-wrap gap-0.5 rounded-lg border-2 border-white/80 p-1">
-          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
-          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
-          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
-          <View className="m-0.5 h-[20%] w-[45%] bg-white" />
-        </View>
+      <View className="mb-3 items-center justify-center">
+        <Svg width={iconSize} height={iconSize * 0.91} viewBox={viewBox} fill="none">
+          <Rect x={0} y={38} width={80} height={48} rx={4} fill={houseFill} />
+          <Path d="M -8 42 L 40 -2 L 88 42 Z" fill={houseFill} />
+          <Path
+            d="M 26 22 L 40 8 L 54 22"
+            fill="none"
+            stroke={chevronStroke}
+            strokeWidth={5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Circle cx={40} cy={62} r={5} fill="#F2A65A" />
+        </Svg>
       </View>
-      <Text className={`${textSize} font-bold tracking-tight text-primary-500`}>Homelyn</Text>
+      <Text
+        className={`${textSize} tracking-tight ${textColor}`}
+        style={{ fontFamily: 'Geist_700Bold', letterSpacing: -0.8 }}>
+        homelyn
+      </Text>
     </View>
   );
 };

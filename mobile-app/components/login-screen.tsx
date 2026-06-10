@@ -14,6 +14,7 @@ import { Text } from './ui/text';
 import { Input, InputField, InputSlot } from './ui/input';
 import { Button, ButtonText, ButtonSpinner } from './ui/button';
 import { Ionicons } from '@expo/vector-icons';
+import { GoogleIcon } from './google-icon';
 
 export const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -142,33 +143,23 @@ export const LoginScreen = () => {
             <View className="h-[1px] flex-1 bg-[#E5E0D8]" />
           </View>
 
-          {/* Social */}
-          <View className="mb-6 flex-row gap-3">
+          {/* Google Sign In — full width, colored icon */}
+          <Animated.View entering={FadeInDown.delay(450).duration(600)} className="mb-6">
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 rounded-xl border-[#E5E0D8] bg-white"
+              className="w-full rounded-xl border-[#E5E0D8] bg-white"
               style={{ height: 50 }}>
-              <Text className="mr-1.5 text-sm">G</Text>
+              <View className="mr-2.5">
+                <GoogleIcon size={20} />
+              </View>
               <ButtonText
                 className="text-sm text-charcoal"
                 style={{ fontFamily: 'Geist_600SemiBold' }}>
-                Google
+                Sign in with Google
               </ButtonText>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="flex-1 rounded-xl border-[#E5E0D8] bg-white"
-              style={{ height: 50 }}>
-              <Text className="mr-1.5 text-sm"></Text>
-              <ButtonText
-                className="text-sm text-charcoal"
-                style={{ fontFamily: 'Geist_600SemiBold' }}>
-                Apple
-              </ButtonText>
-            </Button>
-          </View>
+          </Animated.View>
 
           <View className="items-center">
             <TouchableOpacity onPress={() => router.push('/role-select')}>
