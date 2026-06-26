@@ -4,6 +4,7 @@ import {
   EMAIL_PROVIDER,
   type EmailProvider,
 } from './providers/email-provider.interface';
+import { monthlyGreetingTemplate } from './templates/monthly-greeting.template';
 import { otpTemplate, type OtpEmailType } from './templates/otp.template';
 import { welcomeTemplate } from './templates/welcome.template';
 
@@ -23,6 +24,14 @@ export class EmailService {
     options?: { name?: string | null; role?: AppRole | null },
   ) {
     const { subject, html } = welcomeTemplate(options);
+    await this.provider.send({ to, subject, html });
+  }
+
+  async sendMonthlyGreeting(
+    to: string,
+    options: { name?: string | null; month: string; year: number },
+  ) {
+    const { subject, html } = monthlyGreetingTemplate(options);
     await this.provider.send({ to, subject, html });
   }
 }

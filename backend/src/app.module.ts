@@ -18,6 +18,9 @@ import { PaymentsModule } from './payments/payments.module';
 import { TenancyModule } from './tenancy/tenancy.module';
 import { SponsorshipModule } from './sponsorship/sponsorship.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { QueueModule } from './queue/queue.module';
+import { WelcomeModule } from './welcome/welcome.module';
+import { MonthlyGreetingModule } from './monthly-greeting/monthly-greeting.module';
 
 @Module({
   controllers: [AppController],
@@ -35,6 +38,9 @@ import { NotificationsModule } from './notifications/notifications.module';
     TenancyModule,
     SponsorshipModule,
     NotificationsModule,
+    QueueModule,
+    WelcomeModule,
+    MonthlyGreetingModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },

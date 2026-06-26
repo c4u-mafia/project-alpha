@@ -43,6 +43,8 @@ export const notificationTypeEnum = pgEnum('notification_type', [
   'sponsorship_received',
   // Messaging
   'message_received',
+  // Lifecycle / engagement
+  'monthly_greeting',
 ]);
 
 export const notification = pgTable(

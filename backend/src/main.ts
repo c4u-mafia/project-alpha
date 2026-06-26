@@ -1,10 +1,17 @@
 import { NestFactory } from '@nestjs/core';
+import { getQueueToken } from '@nestjs/bullmq';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { OpenAPIObject } from '@nestjs/swagger';
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
+import type { Queue } from 'bullmq';
+import type { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 import { auth } from './auth';
+import { QUEUE } from './queue/queue.constants';
 
 function scalarPage(specUrl: string, title: string): string {
   return `<!DOCTYPE html>
@@ -80,6 +87,54 @@ async function buildFullDocument(nestDocument: OpenAPIObject): Promise<OpenAPIOb
   } as OpenAPIObject;
 }
 
+/**
+ * Mounts the Bull Board queue dashboard at /admin/queues behind HTTP Basic
+ * Auth. Mounted as raw Express middleware (Nest's global guards don't cover
+ * it), so the basic-auth gate is its own protection. Skipped if no password
+ * is configured, to avoid exposing an open dashboard.
+ */
+function mountBullBoard(app: NestExpressApplication): void {
+  const logger = new Logger('BullBoard');
+  const username = process.env.BULLBOARD_USER ?? 'admin';
+  const password = process.env.BULLBOARD_PASSWORD;
+
+  if (!password) {
+    logger.warn(
+      'BULLBOARD_PASSWORD not set — queue dashboard at /admin/queues is disabled.',
+    );
+    return;
+  }
+
+  const welcomeQueue = app.get<Queue>(getQueueToken(QUEUE.WELCOME));
+  const monthlyQueue = app.get<Queue>(getQueueToken(QUEUE.MONTHLY_GREETING));
+
+  const serverAdapter = new ExpressAdapter();
+  serverAdapter.setBasePath('/admin/queues');
+  createBullBoard({
+    queues: [new BullMQAdapter(welcomeQueue), new BullMQAdapter(monthlyQueue)],
+    serverAdapter,
+  });
+
+  const gate = (req: Request, res: Response, next: NextFunction): void => {
+    const header = req.headers.authorization ?? '';
+    const [scheme, encoded] = header.split(' ');
+    if (scheme === 'Basic' && encoded) {
+      const [user, pass] = Buffer.from(encoded, 'base64')
+        .toString()
+        .split(':');
+      if (user === username && pass === password) {
+        next();
+        return;
+      }
+    }
+    res.set('WWW-Authenticate', 'Basic realm="Homelyn Queues"');
+    res.status(401).send('Authentication required.');
+  };
+
+  app.use('/admin/queues', gate, serverAdapter.getRouter());
+  logger.log('Queue dashboard mounted at /admin/queues');
+}
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
@@ -126,6 +181,8 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  mountBullBoard(app);
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);

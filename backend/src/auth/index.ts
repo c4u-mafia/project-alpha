@@ -12,7 +12,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { SELF_SERVE_ROLES, type AppRole, authSchema, user } from '../db/schema';
 import { otpTemplate } from '../email/templates/otp.template';
-import { welcomeTemplate } from '../email/templates/welcome.template';
+import { emitUserCreated } from '../events/event-bus';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const EMAIL_FROM =
@@ -65,46 +65,6 @@ async function findUserByEmail(email: string) {
   return db.query.user.findFirst({
     where: eq(user.email, email),
   });
-}
-
-function normalizeRole(role: unknown): AppRole | null {
-  return typeof role === 'string' &&
-    (['tenant', 'landlord', 'admin'] as readonly string[]).includes(role)
-    ? (role as AppRole)
-    : null;
-}
-
-async function sendWelcomeEmailOnce(createdUser: Record<string, unknown>) {
-  const userId = typeof createdUser.id === 'string' ? createdUser.id : null;
-  if (!userId) return;
-
-  const [foundUser] = await db
-    .select()
-    .from(user)
-    .where(eq(user.id, userId))
-    .limit(1);
-  if (!foundUser?.email || foundUser.welcomeEmailSentAt) return;
-
-  const { subject, html } = welcomeTemplate({
-    name: foundUser.name,
-    role: normalizeRole(foundUser.role),
-  });
-
-  const { error } = await resend.emails.send({
-    from: EMAIL_FROM,
-    to: foundUser.email,
-    subject,
-    html,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  await db
-    .update(user)
-    .set({ welcomeEmailSentAt: new Date(), updatedAt: new Date() })
-    .where(eq(user.id, userId));
 }
 
 const authConfig: BetterAuthOptions = {
@@ -244,9 +204,14 @@ const authConfig: BetterAuthOptions = {
           });
         },
         after: (createdUser) => {
-          void sendWelcomeEmailOnce(createdUser).catch((error: unknown) => {
-            console.error('Failed to send welcome email', error);
-          });
+          // Hand off to the welcome queue (BullMQ) via the shared event bus.
+          // The worker handles sending + idempotency; signup stays fast and
+          // a transient email outage no longer loses the welcome message.
+          const created = asRecord(createdUser);
+          const userId = typeof created.id === 'string' ? created.id : null;
+          if (userId) {
+            emitUserCreated({ userId });
+          }
 
           return Promise.resolve();
         },
