@@ -147,50 +147,151 @@ export interface LandlordTenantView {
   paymentStatus?: 'up_to_date' | 'overdue' | 'pending';
 }
 
+export interface WalletTransaction {
+  id: string;
+  walletId: string;
+  paymentId: string | null;
+  type: 'credit' | 'debit';
+  amount: number; // kobo
+  balanceAfter: number;
+  description: string;
+  createdAt: string;
+}
+
 export interface WalletResponse {
-  balance: number;
-  pendingBalance: number;
-  recentTransactions: {
-    id: string;
-    amount: number;
-    type: string;
-    description?: string;
-    createdAt: string;
-  }[];
+  id: string;
+  userId: string;
+  balance: number; // kobo
+  pendingBalance: number; // kobo
+  currency: string;
+  recentTransactions: WalletTransaction[];
+}
+
+export interface UserProfileFields {
+  id: string;
+  phone: string | null;
+  phoneVerified: boolean;
+  dateOfBirth: string | null;
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say' | null;
+  city: string | null;
+  ninStatus: 'not_submitted' | 'pending' | 'verified' | 'failed';
+  onboardingCompleted: boolean;
+}
+
+export interface TenantRoleProfile {
+  id: string;
+  employerName: string | null;
+  jobRole: string | null;
+  monthlyIncomeRange: string | null;
+  preferredBudgetMin: number | null;
+  preferredBudgetMax: number | null;
+  preferredAreas: string[] | null;
+  preferredBedrooms: number[] | null;
+  moveInTimeline: string | null;
+  employmentStepCompleted: boolean;
+  preferencesStepCompleted: boolean;
+}
+
+export interface LandlordRoleProfile {
+  id: string;
+  isCompany: boolean;
+  companyName: string | null;
+  isDiaspora: boolean;
+  verificationStatus:
+    | 'unverified'
+    | 'documents_submitted'
+    | 'under_review'
+    | 'approved'
+    | 'rejected';
+  bankAccountName: string | null;
+  bankAccountNumber: string | null;
+  bankName: string | null;
+  bankStepCompleted: boolean;
+  onboardingCompleted: boolean;
 }
 
 export interface CurrentUser {
   id: string;
   name: string;
   email: string;
-  role: string;
-  profile?: {
-    phone?: string;
-    ninStatus?: string;
-    city?: string;
-    gender?: string;
-  };
-  landlordProfile?: {
-    verificationStatus: string;
-  };
-  tenantProfile?: {
-    ninStatus: string;
-  };
+  emailVerified: boolean;
+  image: string | null;
+  role: 'tenant' | 'landlord' | 'admin';
+  createdAt: string;
+  profile: UserProfileFields | null;
+  roleProfile: TenantRoleProfile | LandlordRoleProfile | null;
+}
+
+export interface OnboardingStatus {
+  role: 'tenant' | 'landlord' | string;
+  steps: Record<string, boolean>;
+  completed: boolean;
+}
+
+export interface UpdateProfilePayload {
+  phone?: string;
+  dateOfBirth?: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  city?: string;
+}
+
+export interface ApplicationRecord {
+  id: string;
+  tenantId: string;
+  landlordId: string;
+  propertyId: string;
+  viewingRequestId: string | null;
+  status: 'submitted' | 'under_review' | 'approved' | 'declined' | 'withdrawn';
+  moveInDate: string;
+  employmentProofUrl: string | null;
+  personalMessage: string | null;
+  landlordNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+  property: {
+    id: string;
+    title: string;
+    area: string;
+    city: string;
+    annualRent: number;
+  } | null;
+}
+
+export interface ViewingRequestRecord {
+  id: string;
+  tenantId: string;
+  propertyId: string;
+  slotId: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+  tenantMessage: string | null;
+  addressRevealed: boolean;
+  landlordRating: number | null;
+  tenantRating: number | null;
+  createdAt: string;
+  scheduledFor: string | null; // ISO date+time built from slot.date + slot.startTime
+  property: {
+    id: string;
+    title: string;
+    area: string;
+    city: string;
+  } | null;
 }
 
 export interface NotificationItem {
   id: string;
   type: string;
   title: string;
-  message: string;
-  isRead: boolean;
+  body: string;
+  data: Record<string, unknown> | null;
+  readAt: string | null;
+  sentAt: string | null;
   createdAt: string;
 }
 
 export interface NotificationsResponse {
   data: NotificationItem[];
-  total: number;
   page: number;
+  limit: number;
 }
 
 // ─── Adapter ────────────────────────────────────────────────────────────────
@@ -341,12 +442,98 @@ export function useCurrentUser() {
   });
 }
 
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateProfilePayload) =>
+      apiFetch('/me/profile', { method: 'PATCH', body: JSON.stringify(payload) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['onboardingStatus'] });
+    },
+  });
+}
+
+export function useOnboardingStatus() {
+  return useQuery<OnboardingStatus>({
+    queryKey: ['onboardingStatus'],
+    queryFn: () => apiFetch<OnboardingStatus>('/me/onboarding-status'),
+  });
+}
+
 // ─── Notification Hooks ──────────────────────────────────────────────────────
 
 export function useNotifications(page = 1, limit = 10) {
   return useQuery<NotificationsResponse>({
     queryKey: ['notifications', page],
     queryFn: () => apiFetch<NotificationsResponse>(`/notifications?page=${page}&limit=${limit}`),
+  });
+}
+
+export function useMarkNotificationRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiFetch(`/notifications/${id}/read`, { method: 'PATCH' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+}
+
+export function useMarkAllNotificationsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiFetch(`/notifications/read-all`, { method: 'PATCH' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+}
+
+// ─── Tenant Applications & Viewings ─────────────────────────────────────────
+
+export function useMyApplications() {
+  return useQuery<ApplicationRecord[]>({
+    queryKey: ['applications', 'mine'],
+    queryFn: () => apiFetch<ApplicationRecord[]>('/applications/mine'),
+  });
+}
+
+export function useMyViewings() {
+  return useQuery<ViewingRequestRecord[]>({
+    queryKey: ['viewings', 'mine'],
+    queryFn: () => apiFetch<ViewingRequestRecord[]>('/viewings/mine'),
+  });
+}
+
+export function useCancelViewing() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiFetch(`/viewings/${id}/cancel`, { method: 'PATCH' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['viewings'] }),
+  });
+}
+
+// ─── Payment History (typed) ────────────────────────────────────────────────
+
+export interface PaymentHistoryItem {
+  id: string;
+  amount: number; // kobo
+  status: string;
+  type: string;
+  description?: string | null;
+  reference?: string | null;
+  createdAt: string;
+}
+
+export interface PaymentHistoryResponse {
+  data: PaymentHistoryItem[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export function useTypedPaymentHistory(page = 1, limit = 20) {
+  return useQuery<PaymentHistoryResponse>({
+    queryKey: ['payments', 'history', page],
+    queryFn: () =>
+      apiFetch<PaymentHistoryResponse>(`/payments/history?page=${page}&limit=${limit}`),
   });
 }
 
@@ -363,5 +550,19 @@ export function useLandlordTenants() {
   return useQuery<LandlordTenantView[]>({
     queryKey: ['landlord', 'tenants'],
     queryFn: () => apiFetch<LandlordTenantView[]>('/landlord/tenants'),
+  });
+}
+
+export function useLandlordApplications() {
+  return useQuery<ApplicationRecord[]>({
+    queryKey: ['landlord', 'applications'],
+    queryFn: () => apiFetch<ApplicationRecord[]>('/landlord/applications'),
+  });
+}
+
+export function useLandlordViewingRequests() {
+  return useQuery<ViewingRequestRecord[]>({
+    queryKey: ['landlord', 'viewing-requests'],
+    queryFn: () => apiFetch<ViewingRequestRecord[]>('/landlord/viewing-requests'),
   });
 }

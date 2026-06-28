@@ -105,6 +105,13 @@ function RootLayoutNav() {
         <Stack.Screen name="onboarding/complete" options={{ animation: 'fade' }} />
         <Stack.Screen name="(tenant)" options={{ animation: 'fade' }} />
         <Stack.Screen name="(landlord)" options={{ animation: 'fade' }} />
+        <Stack.Screen name="profile/edit" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="wallet" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="saved-homes" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="notifications" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="applications" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="viewings" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="kyc" options={{ animation: 'slide_from_right' }} />
       </Stack>
     </GluestackUIProvider>
   );

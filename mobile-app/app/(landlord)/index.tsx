@@ -435,7 +435,7 @@ export default function LandlordDashboard() {
                               fontSize: 12,
                               marginTop: 1,
                             }}>
-                            {item.message}
+                            {item.body}
                           </Text>
                         </View>
                         <Text

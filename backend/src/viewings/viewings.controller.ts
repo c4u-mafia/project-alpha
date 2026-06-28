@@ -46,6 +46,13 @@ export class ViewingsController {
     return this.service.getPropertyRequests(user.id, propertyId);
   }
 
+  @Get('landlord/viewing-requests')
+  @Roles('landlord')
+  @ApiOperation({ summary: 'Landlord: all viewing requests across every owned property' })
+  getAllLandlordRequests(@CurrentUser() user: SessionUser) {
+    return this.service.getLandlordRequests(user.id);
+  }
+
   // ── Tenant: browse slots and request ────────────────────────────────────────
 
   @Get('listings/:propertyId/viewing-slots')

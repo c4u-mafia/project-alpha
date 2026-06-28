@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { db } from '../db';
 import {
   property,
@@ -70,11 +70,43 @@ export class ApplicationsService {
   }
 
   async getMyApplications(tenantId: string) {
-    return db
-      .select()
+    const rows = await db
+      .select({
+        application: rentalApplication,
+        property: {
+          id: property.id,
+          title: property.title,
+          area: property.area,
+          city: property.city,
+          annualRent: property.annualRent,
+        },
+      })
       .from(rentalApplication)
+      .leftJoin(property, eq(property.id, rentalApplication.propertyId))
       .where(eq(rentalApplication.tenantId, tenantId))
-      .orderBy(rentalApplication.createdAt);
+      .orderBy(desc(rentalApplication.createdAt));
+
+    return rows.map((r) => ({ ...r.application, property: r.property }));
+  }
+
+  async getLandlordApplications(landlordId: string) {
+    const rows = await db
+      .select({
+        application: rentalApplication,
+        property: {
+          id: property.id,
+          title: property.title,
+          area: property.area,
+          city: property.city,
+          annualRent: property.annualRent,
+        },
+      })
+      .from(rentalApplication)
+      .leftJoin(property, eq(property.id, rentalApplication.propertyId))
+      .where(eq(rentalApplication.landlordId, landlordId))
+      .orderBy(desc(rentalApplication.createdAt));
+
+    return rows.map((r) => ({ ...r.application, property: r.property }));
   }
 
   async getPropertyApplications(landlordId: string, propertyId: string) {

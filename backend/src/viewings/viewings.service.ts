@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { property, viewingSlot, viewingRequest } from '../db/schema';
 import type {
@@ -107,11 +107,32 @@ export class ViewingsService {
   }
 
   async getMyRequests(tenantId: string) {
-    return db
-      .select()
+    const rows = await db
+      .select({
+        request: viewingRequest,
+        slot: {
+          date: viewingSlot.date,
+          startTime: viewingSlot.startTime,
+          endTime: viewingSlot.endTime,
+        },
+        property: {
+          id: property.id,
+          title: property.title,
+          area: property.area,
+          city: property.city,
+        },
+      })
       .from(viewingRequest)
+      .leftJoin(viewingSlot, eq(viewingSlot.id, viewingRequest.slotId))
+      .leftJoin(property, eq(property.id, viewingRequest.propertyId))
       .where(eq(viewingRequest.tenantId, tenantId))
-      .orderBy(viewingRequest.createdAt);
+      .orderBy(desc(viewingRequest.createdAt));
+
+    return rows.map((r) => ({
+      ...r.request,
+      scheduledFor: r.slot ? `${r.slot.date}T${r.slot.startTime}` : null,
+      property: r.property,
+    }));
   }
 
   async getPropertyRequests(landlordId: string, propertyId: string) {
@@ -127,6 +148,42 @@ export class ViewingsService {
       .from(viewingRequest)
       .where(eq(viewingRequest.propertyId, propertyId))
       .orderBy(viewingRequest.createdAt);
+  }
+
+  async getLandlordRequests(landlordId: string) {
+    const owned = await db
+      .select({ id: property.id })
+      .from(property)
+      .where(eq(property.landlordId, landlordId));
+    if (owned.length === 0) return [];
+
+    const propertyIds = owned.map((p) => p.id);
+    const rows = await db
+      .select({
+        request: viewingRequest,
+        slot: {
+          date: viewingSlot.date,
+          startTime: viewingSlot.startTime,
+          endTime: viewingSlot.endTime,
+        },
+        property: {
+          id: property.id,
+          title: property.title,
+          area: property.area,
+          city: property.city,
+        },
+      })
+      .from(viewingRequest)
+      .leftJoin(viewingSlot, eq(viewingSlot.id, viewingRequest.slotId))
+      .leftJoin(property, eq(property.id, viewingRequest.propertyId))
+      .where(inArray(viewingRequest.propertyId, propertyIds))
+      .orderBy(desc(viewingRequest.createdAt));
+
+    return rows.map((r) => ({
+      ...r.request,
+      scheduledFor: r.slot ? `${r.slot.date}T${r.slot.startTime}` : null,
+      property: r.property,
+    }));
   }
 
   // ── State transitions ────────────────────────────────────────────────────────

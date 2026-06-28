@@ -36,6 +36,13 @@ export class ApplicationsController {
     return this.service.getPropertyApplications(user.id, propertyId);
   }
 
+  @Get('landlord/applications')
+  @Roles('landlord')
+  @ApiOperation({ summary: 'Landlord: all applications across every owned property' })
+  getAllLandlordApplications(@CurrentUser() user: SessionUser) {
+    return this.service.getLandlordApplications(user.id);
+  }
+
   @Get('applications/:id')
   @ApiOperation({ summary: 'Single application detail (tenant or landlord of that property)' })
   findOne(@CurrentUser() user: SessionUser, @Param('id') id: string) {

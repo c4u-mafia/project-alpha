@@ -1,53 +1,116 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, ScrollView, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { authClient } from '@/lib/auth-client';
 import { useGlobalStore } from '@/store/global-store';
 import { Text } from '@/components/ui/text';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useCurrentUser, type LandlordRoleProfile } from '@/hooks/use-api';
 
-const MENU_SECTIONS = [
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+type MenuItem = { icon: IconName; label: string; sub?: string; href?: string };
+type MenuSection = { title: string; items: MenuItem[] };
+
+const MENU_SECTIONS: MenuSection[] = [
   {
     title: 'Business',
     items: [
-      { icon: 'business-outline' as const, label: 'My Properties', sub: 'Manage listings' },
-      { icon: 'people-outline' as const, label: 'My Tenants', sub: 'View all tenancies' },
-      { icon: 'document-text-outline' as const, label: 'Applications', sub: 'Pending approvals' },
-      { icon: 'calendar-outline' as const, label: 'Viewing Requests', sub: 'Scheduled visits' },
+      {
+        icon: 'business-outline',
+        label: 'My Properties',
+        sub: 'Manage listings',
+        href: '/(landlord)/properties',
+      },
+      {
+        icon: 'people-outline',
+        label: 'My Tenants',
+        sub: 'View all tenancies',
+        href: '/(landlord)/tenants',
+      },
+      {
+        icon: 'document-text-outline',
+        label: 'Applications',
+        sub: 'Pending approvals',
+        href: '/applications',
+      },
+      {
+        icon: 'calendar-outline',
+        label: 'Viewing Requests',
+        sub: 'Scheduled visits',
+        href: '/viewings',
+      },
     ],
   },
   {
     title: 'Finance',
     items: [
-      { icon: 'wallet-outline' as const, label: 'Wallet & Payouts', sub: 'Balance & withdrawal' },
-      { icon: 'receipt-outline' as const, label: 'Payment History', sub: 'All transactions' },
-      { icon: 'lock-closed-outline' as const, label: 'Escrow Holds', sub: 'Pending releases' },
+      { icon: 'wallet-outline', label: 'Wallet & Payouts', sub: 'Balance & withdrawal', href: '/wallet' },
+      { icon: 'receipt-outline', label: 'Payment History', sub: 'All transactions', href: '/wallet' },
     ],
   },
   {
     title: 'Account',
     items: [
       {
-        icon: 'shield-checkmark-outline' as const,
+        icon: 'person-circle-outline',
+        label: 'Edit Profile',
+        sub: 'Phone, DOB, city',
+        href: '/profile/edit',
+      },
+      {
+        icon: 'shield-checkmark-outline',
         label: 'KYC Status',
         sub: 'Verification progress',
+        href: '/kyc',
       },
-      { icon: 'card-outline' as const, label: 'Bank Account', sub: 'Payout destination' },
-      { icon: 'notifications-outline' as const, label: 'Notifications' },
-      { icon: 'help-circle-outline' as const, label: 'Help & Support' },
+      { icon: 'notifications-outline', label: 'Notifications', href: '/notifications' },
+      { icon: 'help-circle-outline', label: 'Help & Support' },
     ],
   },
 ];
 
+const VERIFICATION_BADGE: Record<
+  LandlordRoleProfile['verificationStatus'],
+  { label: string; bg: string; color: string }
+> = {
+  approved: { label: '✓ VERIFIED', bg: '#D4EDE6', color: '#0E7C7B' },
+  under_review: { label: 'UNDER REVIEW', bg: '#FEF3C7', color: '#E89B2C' },
+  documents_submitted: { label: 'SUBMITTED', bg: '#FEF3C7', color: '#E89B2C' },
+  rejected: { label: 'REJECTED', bg: '#FEE2E2', color: '#D54545' },
+  unverified: { label: 'UNVERIFIED', bg: 'rgba(255,255,255,0.1)', color: 'white' },
+};
+
 export default function LandlordMe() {
   const { setRole } = useGlobalStore();
+  const { data: user, isLoading } = useCurrentUser();
+
+  const landlordRP = (user?.role === 'landlord'
+    ? (user?.roleProfile as LandlordRoleProfile | null)
+    : null) ?? null;
+  const verificationStatus = landlordRP?.verificationStatus ?? 'unverified';
+  const badge = VERIFICATION_BADGE[verificationStatus];
+  const isVerified = verificationStatus === 'approved';
+  const ninStatus = user?.profile?.ninStatus ?? 'not_submitted';
+  const hasBank = Boolean(landlordRP?.bankAccountNumber);
 
   const handleSignOut = async () => {
-    await authClient.signOut();
-    setRole('tenant');
-    router.replace('/onboarding');
+    Alert.alert('Sign out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign out',
+        style: 'destructive',
+        onPress: async () => {
+          await authClient.signOut();
+          setRole('tenant');
+          router.replace('/onboarding');
+        },
+      },
+    ]);
   };
+
+  const initial = user?.name?.[0]?.toUpperCase() ?? '?';
 
   return (
     <View className="flex-1 bg-cream">
@@ -75,22 +138,53 @@ export default function LandlordMe() {
                   borderWidth: 2,
                   borderColor: 'rgba(255,255,255,0.2)',
                 }}>
-                <Text style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 24 }}>A</Text>
+                <Text style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 24 }}>
+                  {initial}
+                </Text>
               </View>
               <View className="flex-1">
-                <Text style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 20 }}>
-                  Mr. Chukwuka Adeyemi
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: 'Geist_400Regular',
-                    color: 'rgba(255,255,255,0.5)',
-                    fontSize: 13,
-                    marginTop: 1,
-                  }}>
-                  adeyemi@remax.ng
-                </Text>
-                <View className="mt-2 mt-6 flex-row gap-2">
+                {isLoading ? (
+                  <>
+                    <Skeleton
+                      style={{
+                        height: 20,
+                        width: 160,
+                        borderRadius: 6,
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                      }}
+                    />
+                    <Skeleton
+                      style={{
+                        height: 12,
+                        width: 200,
+                        borderRadius: 6,
+                        marginTop: 6,
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                      }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Text
+                      style={{ fontFamily: 'Geist_700Bold', color: 'white', fontSize: 20 }}
+                      numberOfLines={1}>
+                      {landlordRP?.isCompany && landlordRP.companyName
+                        ? landlordRP.companyName
+                        : (user?.name ?? '—')}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: 'Geist_400Regular',
+                        color: 'rgba(255,255,255,0.5)',
+                        fontSize: 13,
+                        marginTop: 1,
+                      }}
+                      numberOfLines={1}>
+                      {user?.email ?? ''}
+                    </Text>
+                  </>
+                )}
+                <View className="mt-2 flex-row gap-2">
                   <View
                     style={{
                       paddingHorizontal: 8,
@@ -98,7 +192,8 @@ export default function LandlordMe() {
                       borderRadius: 999,
                       backgroundColor: 'rgba(255,255,255,0.1)',
                     }}>
-                    <Text style={{ fontFamily: 'Geist_600SemiBold', color: 'white', fontSize: 11 }}>
+                    <Text
+                      style={{ fontFamily: 'Geist_600SemiBold', color: 'white', fontSize: 11 }}>
                       LANDLORD
                     </Text>
                   </View>
@@ -107,16 +202,21 @@ export default function LandlordMe() {
                       paddingHorizontal: 8,
                       paddingVertical: 3,
                       borderRadius: 999,
-                      backgroundColor: '#D4EDE6',
+                      backgroundColor: badge.bg,
                     }}>
                     <Text
-                      style={{ fontFamily: 'Geist_600SemiBold', color: '#0E7C7B', fontSize: 11 }}>
-                      ✓ VERIFIED
+                      style={{
+                        fontFamily: 'Geist_600SemiBold',
+                        color: badge.color,
+                        fontSize: 11,
+                      }}>
+                      {badge.label}
                     </Text>
                   </View>
                 </View>
               </View>
               <TouchableOpacity
+                onPress={() => router.push('/profile/edit' as never)}
                 style={{
                   width: 36,
                   height: 36,
@@ -130,7 +230,9 @@ export default function LandlordMe() {
             </View>
 
             {/* KYC Status */}
-            <View
+            <TouchableOpacity
+              onPress={() => router.push('/kyc' as never)}
+              activeOpacity={0.85}
               style={{
                 marginTop: 20,
                 backgroundColor: 'rgba(255,255,255,0.07)',
@@ -140,10 +242,14 @@ export default function LandlordMe() {
                 alignItems: 'center',
                 gap: 12,
               }}>
-              <Ionicons name="shield-checkmark" size={24} color="#D4EDE6" />
+              <Ionicons
+                name={isVerified ? 'shield-checkmark' : 'shield-outline'}
+                size={24}
+                color={isVerified ? '#D4EDE6' : 'rgba(255,255,255,0.6)'}
+              />
               <View className="flex-1">
                 <Text style={{ fontFamily: 'Geist_600SemiBold', color: 'white', fontSize: 14 }}>
-                  Identity Verified
+                  {isVerified ? 'Identity Verified' : 'Verification Incomplete'}
                 </Text>
                 <Text
                   style={{
@@ -152,11 +258,17 @@ export default function LandlordMe() {
                     fontSize: 12,
                     marginTop: 1,
                   }}>
-                  NIN verified · 3 docs approved
+                  NIN {ninStatus === 'verified' ? 'verified' : ninStatus.replace('_', ' ')}
+                  {' · '}
+                  Bank {hasBank ? 'on file' : 'not added'}
                 </Text>
               </View>
-              <Ionicons name="checkmark-circle" size={22} color="#1E9E5C" />
-            </View>
+              <Ionicons
+                name={isVerified ? 'checkmark-circle' : 'chevron-forward'}
+                size={isVerified ? 22 : 16}
+                color={isVerified ? '#1E9E5C' : 'rgba(255,255,255,0.4)'}
+              />
+            </TouchableOpacity>
           </View>
         </Animated.View>
 
@@ -182,6 +294,8 @@ export default function LandlordMe() {
                 {section.items.map((item, i) => (
                   <TouchableOpacity
                     key={item.label}
+                    onPress={() => item.href && router.push(item.href as never)}
+                    disabled={!item.href}
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
@@ -190,6 +304,7 @@ export default function LandlordMe() {
                       paddingVertical: 14,
                       borderTopWidth: i > 0 ? 1 : 0,
                       borderTopColor: '#F5F0EC',
+                      opacity: item.href ? 1 : 0.6,
                     }}>
                     <View
                       style={{
@@ -219,7 +334,7 @@ export default function LandlordMe() {
                         </Text>
                       )}
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color="#D0CCC6" />
+                    {item.href && <Ionicons name="chevron-forward" size={16} color="#D0CCC6" />}
                   </TouchableOpacity>
                 ))}
               </View>
