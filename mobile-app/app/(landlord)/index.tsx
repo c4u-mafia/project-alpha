@@ -11,6 +11,7 @@ import {
   useLandlordProperties,
   useWallet,
   useNotifications,
+  useLandlordApplications,
 } from '@/hooks/use-api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -122,12 +123,15 @@ export default function LandlordDashboard() {
   const { data: tenants, isLoading: loadingTenants } = useLandlordTenants();
   const { data: wallet, isLoading: loadingWallet } = useWallet();
   const { data: notifs } = useNotifications(1, 5);
+  const { data: applications } = useLandlordApplications();
 
   const isLoading = loadingUser || loadingProps || loadingTenants || loadingWallet;
 
   const totalProperties = properties?.length ?? 0;
   const activeListings = properties?.filter((p) => p.status === 'listed').length ?? 0;
-  const pendingApplications = 0; // TODO: from applications endpoint when available
+  const pendingApplications =
+    applications?.filter((a) => a.status === 'submitted' || a.status === 'under_review').length ??
+    0;
 
   const expiringTenants = (tenants ?? [])
     .filter((t) => t.daysRemaining <= 90)

@@ -502,6 +502,49 @@ export function useMyViewings() {
   });
 }
 
+export interface ViewingSlot {
+  id: string;
+  propertyId: string;
+  landlordId: string;
+  date: string; // YYYY-MM-DD
+  startTime: string; // HH:mm:ss
+  endTime: string;
+  maxAttendees: number;
+  currentAttendees: number;
+  status: 'available' | 'fully_booked' | 'cancelled';
+}
+
+export function useViewingSlots(propertyId: string, enabled = true) {
+  return useQuery<ViewingSlot[]>({
+    queryKey: ['viewingSlots', propertyId],
+    queryFn: () => apiFetch<ViewingSlot[]>(`/listings/${propertyId}/viewing-slots`),
+    enabled: !!propertyId && enabled,
+  });
+}
+
+export function useRequestViewing() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      propertyId,
+      slotId,
+      tenantMessage,
+    }: {
+      propertyId: string;
+      slotId: string;
+      tenantMessage?: string;
+    }) =>
+      apiFetch(`/listings/${propertyId}/viewing-requests`, {
+        method: 'POST',
+        body: JSON.stringify({ slotId, tenantMessage: tenantMessage || undefined }),
+      }),
+    onSuccess: (_data, { propertyId }) => {
+      queryClient.invalidateQueries({ queryKey: ['viewings'] });
+      queryClient.invalidateQueries({ queryKey: ['viewingSlots', propertyId] });
+    },
+  });
+}
+
 export function useCancelViewing() {
   const queryClient = useQueryClient();
   return useMutation({

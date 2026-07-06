@@ -10,6 +10,19 @@ const appPackage = IS_DEV
     ? 'com.homelyn.preview'
     : 'com.homelyn.app';
 
+// Per-variant branding so dev/preview/prod installs are distinguishable side by side
+const appIcon = IS_DEV
+  ? './assets/icon-dev.png'
+  : IS_PREVIEW
+    ? './assets/icon-preview.png'
+    : './assets/icon.png';
+const adaptiveIconForeground = IS_DEV
+  ? './assets/adaptive-icon-dev.png'
+  : IS_PREVIEW
+    ? './assets/adaptive-icon-preview.png'
+    : './assets/adaptive-icon.png';
+const adaptiveIconBackground = IS_DEV ? '#1A2332' : IS_PREVIEW ? '#F2A65A' : '#0E7C7B';
+
 const RAILWAY_URL = 'https://homelyn-backend-production.up.railway.app';
 
 const apiUrl = IS_DEV
@@ -38,7 +51,8 @@ module.exports = {
     [
       'expo-splash-screen',
       {
-        image: './assets/splash.png',
+        image: './assets/splash-icon.png',
+        imageWidth: 220,
         resizeMode: 'contain',
         backgroundColor: '#0E7C7B',
       },
@@ -47,7 +61,7 @@ module.exports = {
     'expo-web-browser',
   ],
   orientation: 'portrait',
-  icon: './assets/icon.png',
+  icon: appIcon,
   userInterfaceStyle: 'light',
   assetBundlePatterns: ['**/*'],
   ios: {
@@ -56,13 +70,17 @@ module.exports = {
   },
   android: {
     adaptiveIcon: {
-      foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#ffffff',
+      foregroundImage: adaptiveIconForeground,
+      monochromeImage: './assets/adaptive-icon-mono.png',
+      backgroundColor: adaptiveIconBackground,
     },
     package: appPackage,
     usesCleartextTraffic: IS_DEV,
     // arm64-v8a only — cuts APK size ~60% vs universal. Covers all modern Android (2017+).
     supportedCpuArchitectures: IS_DEV ? undefined : ['arm64-v8a'],
+  },
+  web: {
+    favicon: './assets/favicon.png',
   },
   extra: {
     apiUrl,
