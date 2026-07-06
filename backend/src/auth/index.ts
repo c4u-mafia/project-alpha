@@ -18,11 +18,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const EMAIL_FROM =
   process.env.EMAIL_FROM ?? 'Homelyn <noreply@koanprotocol.com>';
 
+// Must match the app schemes in mobile-app/app.config.js (per APP_VARIANT)
 const trustedOrigins = [
-  'Homelyn://',
-  'Homelyn-staging://',
-  'Homelyn://*',
-  'Homelyn-staging://*',
+  'homelyn://',
+  'homelyn://*',
+  'homelyn-dev://',
+  'homelyn-dev://*',
+  'homelyn-preview://',
+  'homelyn-preview://*',
   'exp://',
   'exp://**',
   'exp://192.168.*.*:*/**',
