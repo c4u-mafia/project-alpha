@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { and, desc, eq } from 'drizzle-orm';
 import { db } from '../db';
-import { payment, property, tenancy } from '../db/schema';
+import { payment, property, tenancy, user } from '../db/schema';
 import { PaymentsService } from '../payments/payments.service';
 
 function rentHealthPercentage(currentPeriodEnd: string): number {
@@ -29,23 +29,49 @@ export class TenancyService {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   async getCurrentTenancy(tenantId: string) {
-    const [t] = await db
-      .select()
+    const [row] = await db
+      .select({
+        tenancy,
+        property: {
+          id: property.id,
+          title: property.title,
+          area: property.area,
+          city: property.city,
+          state: property.state,
+          annualRent: property.annualRent,
+        },
+        landlord: {
+          id: user.id,
+          name: user.name,
+        },
+      })
       .from(tenancy)
+      .leftJoin(property, eq(property.id, tenancy.propertyId))
+      .leftJoin(user, eq(user.id, tenancy.landlordId))
       .where(and(eq(tenancy.tenantId, tenantId), eq(tenancy.status, 'active')))
       .orderBy(desc(tenancy.createdAt))
       .limit(1);
 
-    if (!t) throw new NotFoundException('No active tenancy found.');
+    if (!row) throw new NotFoundException('No active tenancy found.');
 
     const daysRemaining = Math.ceil(
-      (new Date(t.currentPeriodEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+      (new Date(row.tenancy.currentPeriodEnd).getTime() - Date.now()) /
+        (1000 * 60 * 60 * 24),
     );
-    const healthPct = rentHealthPercentage(t.currentPeriodEnd);
+    const healthPercentage = rentHealthPercentage(row.tenancy.currentPeriodEnd);
 
     return {
-      ...t,
-      rentHealth: { percentage: healthPct, label: rentHealthLabel(healthPct), daysRemaining },
+      ...row.tenancy,
+      annualRentKobo: row.property?.annualRent ?? 0,
+      property: row.property,
+      landlord: row.landlord,
+      healthPercentage,
+      daysRemaining,
+      rentHealth: {
+        percentage: healthPercentage,
+        label: rentHealthLabel(healthPercentage),
+        daysRemaining,
+      },
     };
   }
 
@@ -56,34 +82,72 @@ export class TenancyService {
       .where(eq(tenancy.id, id))
       .limit(1);
     if (!t) throw new NotFoundException('Tenancy not found.');
-    if (t.tenantId !== actorId && t.landlordId !== actorId) throw new ForbiddenException();
+    if (t.tenantId !== actorId && t.landlordId !== actorId)
+      throw new ForbiddenException();
 
     const daysRemaining = Math.ceil(
-      (new Date(t.currentPeriodEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+      (new Date(t.currentPeriodEnd).getTime() - Date.now()) /
+        (1000 * 60 * 60 * 24),
     );
     const healthPct = rentHealthPercentage(t.currentPeriodEnd);
 
     return {
       ...t,
-      rentHealth: { percentage: healthPct, label: rentHealthLabel(healthPct), daysRemaining },
+      rentHealth: {
+        percentage: healthPct,
+        label: rentHealthLabel(healthPct),
+        daysRemaining,
+      },
     };
   }
 
   async getLandlordTenants(landlordId: string) {
-    const tenancies = await db
-      .select()
+    const rows = await db
+      .select({
+        tenancy,
+        tenant: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        property: {
+          id: property.id,
+          title: property.title,
+          area: property.area,
+          city: property.city,
+          annualRent: property.annualRent,
+        },
+      })
       .from(tenancy)
-      .where(and(eq(tenancy.landlordId, landlordId), eq(tenancy.status, 'active')))
+      .leftJoin(user, eq(user.id, tenancy.tenantId))
+      .leftJoin(property, eq(property.id, tenancy.propertyId))
+      .where(
+        and(eq(tenancy.landlordId, landlordId), eq(tenancy.status, 'active')),
+      )
       .orderBy(tenancy.currentPeriodEnd);
 
-    return tenancies.map((t) => {
+    return rows.map((row) => {
+      const t = row.tenancy;
       const daysRemaining = Math.ceil(
-        (new Date(t.currentPeriodEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+        (new Date(t.currentPeriodEnd).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24),
       );
-      const healthPct = rentHealthPercentage(t.currentPeriodEnd);
+      const healthPercentage = rentHealthPercentage(t.currentPeriodEnd);
       return {
-        ...t,
-        rentHealth: { percentage: healthPct, label: rentHealthLabel(healthPct), daysRemaining },
+        tenancyId: t.id,
+        tenant: row.tenant,
+        property: row.property,
+        startDate: t.startDate,
+        endDate: t.endDate,
+        annualRentKobo: row.property?.annualRent ?? 0,
+        status: t.status,
+        healthPercentage,
+        daysRemaining,
+        rentHealth: {
+          percentage: healthPercentage,
+          label: rentHealthLabel(healthPercentage),
+          daysRemaining,
+        },
       };
     });
   }
@@ -95,7 +159,8 @@ export class TenancyService {
       .where(and(eq(tenancy.id, id), eq(tenancy.tenantId, tenantId)))
       .limit(1);
     if (!t) throw new NotFoundException('Tenancy not found.');
-    if (t.status !== 'active') throw new BadRequestException('Only active tenancies can be renewed.');
+    if (t.status !== 'active')
+      throw new BadRequestException('Only active tenancies can be renewed.');
 
     // Get the annual rent from the property
     const [prop] = await db
@@ -117,7 +182,8 @@ export class TenancyService {
       .where(eq(tenancy.id, id))
       .limit(1);
     if (!t) throw new NotFoundException('Tenancy not found.');
-    if (t.tenantId !== actorId && t.landlordId !== actorId) throw new ForbiddenException();
+    if (t.tenantId !== actorId && t.landlordId !== actorId)
+      throw new ForbiddenException();
 
     return db
       .select()

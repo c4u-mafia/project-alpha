@@ -21,6 +21,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { QueueModule } from './queue/queue.module';
 import { WelcomeModule } from './welcome/welcome.module';
 import { MonthlyGreetingModule } from './monthly-greeting/monthly-greeting.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   controllers: [AppController],
@@ -41,6 +42,7 @@ import { MonthlyGreetingModule } from './monthly-greeting/monthly-greeting.modul
     QueueModule,
     WelcomeModule,
     MonthlyGreetingModule,
+    MessagesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },

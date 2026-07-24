@@ -64,14 +64,20 @@ export class LandlordOnboardingService {
         .set(updates)
         .where(eq(userProfile.userId, userId))
         .returning();
-      return { ninStatus: updated.ninStatus, message: 'NIN submitted for verification.' };
+      return {
+        ninStatus: updated.ninStatus,
+        message: 'NIN submitted for verification.',
+      };
     }
 
     const [created] = await db
       .insert(userProfile)
       .values({ userId, ...updates })
       .returning();
-    return { ninStatus: created.ninStatus, message: 'NIN submitted for verification.' };
+    return {
+      ninStatus: created.ninStatus,
+      message: 'NIN submitted for verification.',
+    };
   }
 
   async uploadDocument(userId: string, dto: LandlordDocumentDto) {
@@ -79,7 +85,7 @@ export class LandlordOnboardingService {
       .insert(kycDocument)
       .values({
         userId,
-        documentType: dto.documentType as any,
+        documentType: dto.documentType,
         documentUrl: dto.documentUrl,
         status: 'submitted',
         propertyId: dto.propertyId ?? null,
@@ -145,14 +151,13 @@ export class LandlordOnboardingService {
       .where(eq(landlordProfile.userId, userId))
       .limit(1);
 
-    const profileComplete = Boolean(
-      profile?.phone && profile?.dateOfBirth && profile?.gender && profile?.city,
-    );
+    const profileComplete = Boolean(profile?.phone && profile?.city);
 
     return {
       steps: {
         profile: profileComplete,
-        nin: profile?.ninStatus !== 'not_submitted' && profile?.ninStatus != null,
+        nin:
+          profile?.ninStatus !== 'not_submitted' && profile?.ninStatus != null,
         ninVerified: profile?.ninStatus === 'verified',
         documents: lp ? lp.verificationStatus !== 'unverified' : false,
         bank: lp?.bankStepCompleted ?? false,

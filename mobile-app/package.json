@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "android": "expo run:android",
+    "build:android:development": "eas build --platform android --profile development",
+    "build:android:preview": "eas build --platform android --profile preview",
     "ios": "expo run:ios",
     "start": "expo start",
     "prebuild": "expo prebuild",

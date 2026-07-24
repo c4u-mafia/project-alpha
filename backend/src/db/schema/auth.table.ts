@@ -9,6 +9,11 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const appRoleEnum = pgEnum('app_role', ['tenant', 'landlord', 'admin']);
+export const accountStatusEnum = pgEnum('account_status', [
+  'active',
+  'suspended',
+  'banned',
+]);
 
 export const user = pgTable(
   'user',
@@ -19,6 +24,9 @@ export const user = pgTable(
     emailVerified: boolean('email_verified').notNull().default(false),
     image: text('image'),
     role: appRoleEnum('role'),
+    status: accountStatusEnum('status').notNull().default('active'),
+    statusReason: text('status_reason'),
+    statusChangedAt: timestamp('status_changed_at', { withTimezone: true }),
     welcomeEmailSentAt: timestamp('welcome_email_sent_at', {
       withTimezone: true,
     }),
@@ -32,6 +40,7 @@ export const user = pgTable(
   (table) => [
     uniqueIndex('user_email_unique').on(table.email),
     index('user_role_idx').on(table.role),
+    index('user_status_idx').on(table.status),
   ],
 );
 
@@ -119,7 +128,9 @@ export const jwks = pgTable('jwks', {
   id: text('id').primaryKey(),
   publicKey: text('public_key').notNull(),
   privateKey: text('private_key').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const authSchema = { user, session, account, verification, jwks };

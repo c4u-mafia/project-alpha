@@ -5,7 +5,7 @@ import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
 import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Ionicons } from '@expo/vector-icons';
-import { authClient } from '@/lib/auth-client';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 
 export default function TenantNIN() {
   const [nin, setNin] = useState('');
@@ -18,22 +18,16 @@ export default function TenantNIN() {
     setLoading(true);
     setError('');
     try {
-      const token = await authClient.getSession();
-      const jwt = (token?.data as any)?.session?.token;
-      const res = await fetch('http://localhost:3000/onboarding/tenant/nin', {
+      await apiFetch('/onboarding/tenant/nin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({ nin }),
       });
-      if (!res.ok) {
-        const body = await res.json();
-        setError(body.message || 'Failed to submit NIN');
-        setLoading(false);
-        return;
-      }
-    } catch {}
-    setLoading(false);
-    router.push('/onboarding/tenant/employment');
+      router.push('/onboarding/tenant/employment');
+    } catch (error) {
+      setError(getApiErrorMessage(error, 'Failed to submit NIN'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

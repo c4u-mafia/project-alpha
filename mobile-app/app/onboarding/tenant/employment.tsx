@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { Alert, View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
 import { Input, InputField } from '@/components/ui/input';
-import { authClient } from '@/lib/auth-client';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 
 const INCOME_RANGES = [
   'Below ₦100k/mo',
@@ -13,6 +13,14 @@ const INCOME_RANGES = [
   '₦600k–₦1m/mo',
   'Above ₦1m/mo',
 ];
+
+const INCOME_VALUES: Record<string, string> = {
+  'Below ₦100k/mo': '50k_100k',
+  '₦100k–₦300k/mo': '100k_200k',
+  '₦300k–₦600k/mo': '200k_500k',
+  '₦600k–₦1m/mo': 'above_500k',
+  'Above ₦1m/mo': 'above_500k',
+};
 
 export default function TenantEmployment() {
   const [employerName, setEmployerName] = useState('');
@@ -23,20 +31,20 @@ export default function TenantEmployment() {
   const handleNext = async () => {
     setLoading(true);
     try {
-      const token = await authClient.getSession();
-      const jwt = (token?.data as any)?.session?.token;
-      await fetch('http://localhost:3000/onboarding/tenant/employment', {
+      await apiFetch('/onboarding/tenant/employment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({
           employerName: employerName || undefined,
-          jobTitle: jobTitle || undefined,
-          incomeRange: income || undefined,
+          jobRole: jobTitle || undefined,
+          monthlyIncomeRange: income ? INCOME_VALUES[income] : undefined,
         }),
       });
-    } catch {}
-    setLoading(false);
-    router.push('/onboarding/tenant/preferences');
+      router.push('/onboarding/tenant/preferences');
+    } catch (error) {
+      Alert.alert('Could not save employment details', getApiErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

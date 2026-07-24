@@ -217,6 +217,7 @@ export interface CurrentUser {
   emailVerified: boolean;
   image: string | null;
   role: 'tenant' | 'landlord' | 'admin';
+  status: 'active' | 'suspended' | 'banned';
   createdAt: string;
   profile: UserProfileFields | null;
   roleProfile: TenantRoleProfile | LandlordRoleProfile | null;
@@ -292,6 +293,37 @@ export interface NotificationsResponse {
   data: NotificationItem[];
   page: number;
   limit: number;
+}
+
+export interface ConversationMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  propertyId: string;
+  tenantId: string;
+  landlordId: string;
+  status: 'active' | 'archived';
+  lastMessageAt: string | null;
+  property: {
+    id: string;
+    title: string;
+    area: string;
+    city: string;
+  } | null;
+  otherParticipant: {
+    id: string;
+    name: string;
+    image: string | null;
+  } | null;
+  lastMessage: ConversationMessage | null;
+  unreadCount: number;
 }
 
 // ─── Adapter ────────────────────────────────────────────────────────────────
@@ -483,6 +515,62 @@ export function useMarkAllNotificationsRead() {
   return useMutation({
     mutationFn: () => apiFetch(`/notifications/read-all`, { method: 'PATCH' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+}
+
+// ─── Messaging Hooks ────────────────────────────────────────────────────────
+
+export function useConversations() {
+  return useQuery<ConversationSummary[]>({
+    queryKey: ['conversations'],
+    queryFn: () => apiFetch<ConversationSummary[]>('/conversations'),
+  });
+}
+
+export function useConversationMessages(id: string, page = 1, limit = 50) {
+  return useQuery<{ data: ConversationMessage[]; page: number; limit: number }>({
+    queryKey: ['conversations', id, 'messages', page],
+    queryFn: () =>
+      apiFetch(`/conversations/${id}/messages?page=${page}&limit=${limit}`),
+    enabled: !!id,
+  });
+}
+
+export function useStartConversation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (propertyId: string) =>
+      apiFetch<ConversationSummary>('/conversations', {
+        method: 'POST',
+        body: JSON.stringify({ propertyId }),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['conversations'] }),
+  });
+}
+
+export function useSendMessage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ conversationId, content }: { conversationId: string; content: string }) =>
+      apiFetch<ConversationMessage>(`/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ content }),
+      }),
+    onSuccess: (_data, { conversationId }) => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({
+        queryKey: ['conversations', conversationId, 'messages'],
+      });
+    },
+  });
+}
+
+export function useMarkConversationRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (conversationId: string) =>
+      apiFetch(`/conversations/${conversationId}/read`, { method: 'PATCH' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['conversations'] }),
   });
 }
 

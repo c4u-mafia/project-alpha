@@ -34,12 +34,34 @@ export class UserListQueryDto {
   @IsEnum(['tenant', 'landlord', 'admin'])
   role?: string;
 
-  @ApiPropertyOptional({ enum: ['unverified', 'documents_submitted', 'under_review', 'approved', 'rejected'] })
+  @ApiPropertyOptional({ enum: ['active', 'suspended', 'banned'] })
   @IsOptional()
-  @IsEnum(['unverified', 'documents_submitted', 'under_review', 'approved', 'rejected'])
+  @IsEnum(['active', 'suspended', 'banned'])
+  status?: string;
+
+  @ApiPropertyOptional({
+    enum: [
+      'unverified',
+      'documents_submitted',
+      'under_review',
+      'approved',
+      'rejected',
+    ],
+  })
+  @IsOptional()
+  @IsEnum([
+    'unverified',
+    'documents_submitted',
+    'under_review',
+    'approved',
+    'rejected',
+  ])
   verificationStatus?: string;
 
-  @ApiPropertyOptional({ example: 'john', description: 'Search by name or email' })
+  @ApiPropertyOptional({
+    example: 'john',
+    description: 'Search by name or email',
+  })
   @IsOptional()
   @IsString()
   search?: string;

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { Alert, View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
-import { authClient } from '@/lib/auth-client';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 
 const DOC_TYPES = [
   {
@@ -13,7 +13,7 @@ const DOC_TYPES = [
     icon: 'document-text-outline' as const,
   },
   { id: 'deed_of_assignment', label: 'Deed of Assignment', icon: 'document-outline' as const },
-  { id: 'survey_plan', label: 'Survey Plan', icon: 'map-outline' as const },
+  { id: 'government_id', label: 'Government ID', icon: 'card-outline' as const },
   { id: 'utility_bill', label: 'Recent Utility Bill', icon: 'receipt-outline' as const },
 ];
 
@@ -46,20 +46,20 @@ export default function LandlordDocuments() {
     }
     setLoading(true);
     try {
-      const token = await authClient.getSession();
-      const jwt = (token?.data as any)?.session?.token;
       await Promise.all(
         docs.map((doc) =>
-          fetch('http://localhost:3000/onboarding/landlord/documents', {
+          apiFetch('/onboarding/landlord/documents', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
-            body: JSON.stringify({ type: doc.type, documentUrl: doc.url }),
+            body: JSON.stringify({ documentType: doc.type, documentUrl: doc.url }),
           })
         )
       );
-    } catch {}
-    setLoading(false);
-    router.push('/onboarding/landlord/bank');
+      router.push('/onboarding/landlord/bank');
+    } catch (error) {
+      Alert.alert('Could not submit documents', getApiErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

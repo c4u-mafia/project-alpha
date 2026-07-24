@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { Alert, View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
-import { authClient } from '@/lib/auth-client';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 
 const AREAS = [
   'Lekki',
@@ -17,6 +17,12 @@ const AREAS = [
 ];
 const BEDROOMS = ['Studio', '1 Bed', '2 Beds', '3 Beds', '4+ Beds'];
 const TIMELINES = ['ASAP', '1–3 months', '3–6 months', '6+ months'];
+const TIMELINE_VALUES: Record<string, string> = {
+  ASAP: 'immediately',
+  '1–3 months': 'within_3_months',
+  '3–6 months': 'within_6_months',
+  '6+ months': 'flexible',
+};
 
 export default function TenantPreferences() {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
@@ -37,20 +43,22 @@ export default function TenantPreferences() {
   const handleNext = async () => {
     setLoading(true);
     try {
-      const token = await authClient.getSession();
-      const jwt = (token?.data as any)?.session?.token;
-      await fetch('http://localhost:3000/onboarding/tenant/preferences', {
+      await apiFetch('/onboarding/tenant/preferences', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({
-          preferredAreas: selectedAreas,
-          preferredBedrooms: selectedBedrooms.map((b) => (b === 'Studio' ? 0 : parseInt(b))),
-          moveInTimeline: timeline || undefined,
+          preferredAreas: selectedAreas.length ? selectedAreas : undefined,
+          preferredBedrooms: selectedBedrooms.length
+            ? selectedBedrooms.map((b) => (b === 'Studio' ? 0 : parseInt(b)))
+            : undefined,
+          moveInTimeline: timeline ? TIMELINE_VALUES[timeline] : undefined,
         }),
       });
-    } catch {}
-    setLoading(false);
-    router.push('/onboarding/complete');
+      router.push('/onboarding/complete');
+    } catch (error) {
+      Alert.alert('Could not save your preferences', getApiErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { Alert, View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
 import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Ionicons } from '@expo/vector-icons';
-import { authClient } from '@/lib/auth-client';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 
 const GENDERS = ['Male', 'Female', 'Prefer not to say'];
 
@@ -21,14 +21,8 @@ export default function TenantBasicInfo() {
   const handleNext = async () => {
     setLoading(true);
     try {
-      const token = await authClient.getSession();
-      const jwt = (token?.data as any)?.session?.token;
-      await fetch('http://localhost:3000/me/profile', {
+      await apiFetch('/me/profile', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwt}`,
-        },
         body: JSON.stringify({
           phone: `+234${phone.replace(/^0/, '')}`,
           dateOfBirth: dob,
@@ -36,9 +30,12 @@ export default function TenantBasicInfo() {
           city,
         }),
       });
-    } catch {}
-    setLoading(false);
-    router.push('/onboarding/tenant/nin');
+      router.push('/onboarding/tenant/nin');
+    } catch (error) {
+      Alert.alert('Could not save your profile', getApiErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDob = (val: string) => {

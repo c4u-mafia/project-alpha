@@ -43,6 +43,27 @@
       "when": 1782436642381,
       "tag": "0005_strong_the_spike",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784857089692,
+      "tag": "0006_wakeful_wendell_rand",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784857173217,
+      "tag": "0007_known_madripoor",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784889095494,
+      "tag": "0008_black_molecule_man",
+      "breakpoints": true
     }
   ]
 }

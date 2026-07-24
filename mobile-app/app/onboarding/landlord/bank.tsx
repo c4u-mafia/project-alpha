@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { Alert, View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
 import { Input, InputField } from '@/components/ui/input';
-import { authClient } from '@/lib/auth-client';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 
 const BANKS = [
   'Access Bank',
@@ -20,6 +20,19 @@ const BANKS = [
   'Wema Bank',
 ];
 
+const BANK_CODES: Record<string, string> = {
+  'Access Bank': '044',
+  GTBank: '058',
+  'First Bank': '011',
+  'Zenith Bank': '057',
+  UBA: '033',
+  'Fidelity Bank': '070',
+  'Stanbic IBTC': '221',
+  FCMB: '214',
+  'Sterling Bank': '232',
+  'Wema Bank': '035',
+};
+
 export default function LandlordBank() {
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
@@ -32,21 +45,21 @@ export default function LandlordBank() {
   const handleNext = async () => {
     setLoading(true);
     try {
-      const token = await authClient.getSession();
-      const jwt = (token?.data as any)?.session?.token;
-      await fetch('http://localhost:3000/onboarding/landlord/bank', {
+      await apiFetch('/onboarding/landlord/bank', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
         body: JSON.stringify({
           bankName,
           accountNumber,
           accountName,
-          bankCode: '000',
+          bankCode: BANK_CODES[bankName],
         }),
       });
-    } catch {}
-    setLoading(false);
-    router.push('/onboarding/complete');
+      router.push('/onboarding/complete');
+    } catch (error) {
+      Alert.alert('Could not save bank account', getApiErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

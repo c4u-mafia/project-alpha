@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "wallet_transaction_payment_id_unique" ON "wallet_transaction" USING btree ("payment_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "sponsorship_contribution_payment_id_unique" ON "sponsorship_contribution" USING btree ("payment_id");

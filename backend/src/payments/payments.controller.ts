@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Public } from '../common/decorators/public.decorator';
@@ -21,14 +30,19 @@ export class PaymentsController {
   // ── Wallet ────────────────────────────────────────────────────────────────
 
   @Get('wallet')
-  @ApiOperation({ summary: 'Get current wallet balance and recent transactions' })
+  @ApiOperation({
+    summary: 'Get current wallet balance and recent transactions',
+  })
   getWallet(@CurrentUser() user: SessionUser) {
     return this.service.getWallet(user.id);
   }
 
   @Post('wallet/fund')
   @Roles('tenant')
-  @ApiOperation({ summary: 'Initialize wallet top-up via Paystack (returns payment reference)' })
+  @ApiOperation({
+    summary:
+      'Initialize wallet top-up via Paystack (returns payment reference)',
+  })
   fundWallet(@CurrentUser() user: SessionUser, @Body() dto: FundWalletDto) {
     return this.service.fundWallet(user.id, dto);
   }
@@ -44,16 +58,27 @@ export class PaymentsController {
 
   @Post('payments/initialize')
   @Roles('tenant')
-  @ApiOperation({ summary: 'Initialize rent payment (returns payment reference)' })
-  initializePayment(@CurrentUser() user: SessionUser, @Body() dto: InitializePaymentDto) {
+  @ApiOperation({
+    summary: 'Initialize rent payment (returns payment reference)',
+  })
+  initializePayment(
+    @CurrentUser() user: SessionUser,
+    @Body() dto: InitializePaymentDto,
+  ) {
     return this.service.initializeRentPayment(user.id, dto);
   }
 
   @Post('payments/webhook')
   @Public()
-  @ApiOperation({ summary: 'Paystack webhook — verifies signature, updates payment, creates escrow' })
-  handleWebhook(@Req() req: any) {
-    return this.service.handleWebhook(req.body ?? {});
+  @ApiOperation({
+    summary:
+      'Paystack webhook — verifies signature, updates payment, creates escrow',
+  })
+  handleWebhook(
+    @Body() body: Record<string, unknown>,
+    @Headers('x-paystack-signature') signature?: string,
+  ) {
+    return this.service.handleWebhook(body, signature);
   }
 
   @Get('payments/history')
@@ -63,7 +88,11 @@ export class PaymentsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.service.getPaymentHistory(user.id, Number(page ?? 1), Number(limit ?? 20));
+    return this.service.getPaymentHistory(
+      user.id,
+      Number(page ?? 1),
+      Number(limit ?? 20),
+    );
   }
 
   // ── Admin: escrow ─────────────────────────────────────────────────────────
@@ -77,7 +106,9 @@ export class PaymentsController {
 
   @Patch('admin/escrow/:id/release')
   @Roles('admin')
-  @ApiOperation({ summary: 'Admin: manual early release of escrow to landlord wallet' })
+  @ApiOperation({
+    summary: 'Admin: manual early release of escrow to landlord wallet',
+  })
   releaseEscrow(@Param('id') id: string, @Body() dto: ReleaseEscrowDto) {
     return this.service.releaseEscrow(id, dto);
   }

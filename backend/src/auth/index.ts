@@ -70,6 +70,20 @@ async function findUserByEmail(email: string) {
   });
 }
 
+async function assertAccountCanSignIn(email: string) {
+  const existingUser = await findUserByEmail(email);
+  if (existingUser?.status === 'banned') {
+    throw new APIError('FORBIDDEN', {
+      message: 'This account has been banned.',
+    });
+  }
+  if (existingUser?.status === 'suspended') {
+    throw new APIError('FORBIDDEN', {
+      message: 'This account is currently suspended.',
+    });
+  }
+}
+
 const authConfig: BetterAuthOptions = {
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
@@ -167,11 +181,19 @@ const authConfig: BetterAuthOptions = {
         }
 
         const existingUser = await findUserByEmail(email);
+        await assertAccountCanSignIn(email);
         if (!existingUser) {
           assertSelfServeRole(
             body.role,
             'Choose either tenant or landlord before completing OTP signup.',
           );
+        }
+      }
+
+      if (ctx.path === '/sign-in/email') {
+        const email = body.email;
+        if (typeof email === 'string') {
+          await assertAccountCanSignIn(email);
         }
       }
     }),

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { Alert, View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { OnboardingStepLayout } from '@/components/onboarding-step-layout';
 import { Text } from '@/components/ui/text';
 import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Ionicons } from '@expo/vector-icons';
-import { authClient } from '@/lib/auth-client';
+import { apiFetch, getApiErrorMessage } from '@/lib/api';
 
 const TYPES = [
   {
@@ -34,21 +34,28 @@ export default function LandlordProfile() {
   const handleNext = async () => {
     setLoading(true);
     try {
-      const token = await authClient.getSession();
-      const jwt = (token?.data as any)?.session?.token;
-      await fetch('http://localhost:3000/onboarding/landlord/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
-        body: JSON.stringify({
-          type,
-          phone: `+234${phone.replace(/^0/, '')}`,
-          companyName: type === 'company' ? companyName : undefined,
-          city,
+      await Promise.all([
+        apiFetch('/me/profile', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            phone: `+234${phone.replace(/^0/, '')}`,
+            city,
+          }),
         }),
-      });
-    } catch {}
-    setLoading(false);
-    router.push('/onboarding/landlord/nin');
+        apiFetch('/onboarding/landlord/profile', {
+          method: 'POST',
+          body: JSON.stringify({
+            isCompany: type === 'company',
+            companyName: type === 'company' ? companyName : undefined,
+          }),
+        }),
+      ]);
+      router.push('/onboarding/landlord/nin');
+    } catch (error) {
+      Alert.alert('Could not save your profile', getApiErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

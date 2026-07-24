@@ -31,17 +31,25 @@ export const rentGoal = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     // If tenant is already in a tenancy, link to it
-    tenancyId: text('tenancy_id').references(() => tenancy.id, { onDelete: 'set null' }),
+    tenancyId: text('tenancy_id').references(() => tenancy.id, {
+      onDelete: 'set null',
+    }),
     // If goal is for a specific listing they haven't moved into yet
-    propertyId: text('property_id').references(() => property.id, { onDelete: 'set null' }),
+    propertyId: text('property_id').references(() => property.id, {
+      onDelete: 'set null',
+    }),
     targetAmount: integer('target_amount').notNull(), // kobo
     currentAmount: integer('current_amount').notNull().default(0), // kobo — auto-updated
     deadline: timestamp('deadline', { withTimezone: true }).notNull(),
     message: text('message'), // shown on the public goal page
     shareToken: text('share_token').notNull(), // random token in the shareable link
     status: rentGoalStatusEnum('status').notNull().default('active'),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     index('rent_goal_tenant_id_idx').on(table.tenantId),
@@ -60,8 +68,10 @@ export const sponsorshipContribution = pgTable(
       .notNull()
       .references(() => rentGoal.id, { onDelete: 'cascade' }),
     // Null for guest sponsors (no Homelyn account required)
-    sponsorId: text('sponsor_id').references(() => user.id, { onDelete: 'set null' }),
-    sponsorName: text('sponsor_name'),   // required for guest sponsors
+    sponsorId: text('sponsor_id').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    sponsorName: text('sponsor_name'), // required for guest sponsors
     sponsorEmail: text('sponsor_email'), // required for guest sponsors
     amount: integer('amount').notNull(), // kobo
     isAnonymous: boolean('is_anonymous').notNull().default(false),
@@ -69,15 +79,22 @@ export const sponsorshipContribution = pgTable(
       .notNull()
       .references(() => payment.id, { onDelete: 'cascade' }),
     message: text('message'),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     index('sponsorship_contribution_goal_id_idx').on(table.goalId),
     index('sponsorship_contribution_sponsor_id_idx').on(table.sponsorId),
+    uniqueIndex('sponsorship_contribution_payment_id_unique').on(
+      table.paymentId,
+    ),
   ],
 );
 
 export type RentGoal = typeof rentGoal.$inferSelect;
 export type NewRentGoal = typeof rentGoal.$inferInsert;
-export type SponsorshipContribution = typeof sponsorshipContribution.$inferSelect;
-export type NewSponsorshipContribution = typeof sponsorshipContribution.$inferInsert;
+export type SponsorshipContribution =
+  typeof sponsorshipContribution.$inferSelect;
+export type NewSponsorshipContribution =
+  typeof sponsorshipContribution.$inferInsert;

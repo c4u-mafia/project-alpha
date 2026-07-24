@@ -8,6 +8,14 @@ import {
   Matches,
 } from 'class-validator';
 
+const LANDLORD_DOCUMENT_TYPES = [
+  'certificate_of_occupancy',
+  'deed_of_assignment',
+  'utility_bill',
+  'government_id',
+  'passport',
+] as const;
+
 export class LandlordProfileDto {
   @ApiPropertyOptional()
   @IsOptional()
@@ -35,28 +43,18 @@ export class LandlordNinDto {
 
 export class LandlordDocumentDto {
   @ApiProperty({
-    enum: [
-      'certificate_of_occupancy',
-      'deed_of_assignment',
-      'utility_bill',
-      'government_id',
-      'passport',
-    ],
+    enum: LANDLORD_DOCUMENT_TYPES,
   })
-  @IsEnum([
-    'certificate_of_occupancy',
-    'deed_of_assignment',
-    'utility_bill',
-    'government_id',
-    'passport',
-  ])
-  documentType: string;
+  @IsEnum(LANDLORD_DOCUMENT_TYPES)
+  documentType: (typeof LANDLORD_DOCUMENT_TYPES)[number];
 
   @ApiProperty({ example: 'https://storage.example.com/doc.pdf' })
   @IsString()
   documentUrl: string;
 
-  @ApiPropertyOptional({ description: 'Property ID if this doc is property-linked (C of O, deed)' })
+  @ApiPropertyOptional({
+    description: 'Property ID if this doc is property-linked (C of O, deed)',
+  })
   @IsOptional()
   @IsString()
   propertyId?: string;

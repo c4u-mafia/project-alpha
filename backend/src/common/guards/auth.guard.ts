@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -9,17 +10,17 @@ import type { IncomingHttpHeaders } from 'http';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { auth } from '../../auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { eq } from 'drizzle-orm';
+import { db } from '../../db';
+import { user } from '../../db/schema';
 
-const BETTER_AUTH_URL =
-  process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
+const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
 
 // Lazily initialized JWKS — reused across requests
 let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
 function getJWKS() {
   if (!jwks) {
-    jwks = createRemoteJWKSet(
-      new URL(`${BETTER_AUTH_URL}/api/auth/jwks`),
-    );
+    jwks = createRemoteJWKSet(new URL(`${BETTER_AUTH_URL}/api/auth/jwks`));
   }
   return jwks;
 }
@@ -43,6 +44,26 @@ function extractBearer(headers: IncomingHttpHeaders): string | null {
 
 function looksLikeJWT(token: string): boolean {
   return token.startsWith('eyJ') && token.split('.').length === 3;
+}
+
+async function assertAccountActive(userId: unknown): Promise<void> {
+  if (typeof userId !== 'string') {
+    throw new UnauthorizedException('Invalid session user.');
+  }
+  const [account] = await db
+    .select({ status: user.status })
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
+  if (!account)
+    throw new UnauthorizedException('User account no longer exists.');
+  if (account.status !== 'active') {
+    throw new ForbiddenException(
+      account.status === 'banned'
+        ? 'This account has been banned.'
+        : 'This account is currently suspended.',
+    );
+  }
 }
 
 @Injectable()
@@ -79,6 +100,7 @@ export class AuthGuard implements CanActivate {
           email: payload['email'],
           role: payload['role'] ?? null,
         };
+        await assertAccountActive(payload['id'] ?? payload.sub);
         return true;
       } catch {
         throw new UnauthorizedException(
@@ -100,6 +122,7 @@ export class AuthGuard implements CanActivate {
 
     request.user = session.user;
     request.session = session.session;
+    await assertAccountActive(session.user.id);
     return true;
   }
 }

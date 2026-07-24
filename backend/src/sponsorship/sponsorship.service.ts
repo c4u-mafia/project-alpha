@@ -7,7 +7,7 @@ import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { payment, rentGoal, sponsorshipContribution } from '../db/schema';
 import type { ContributeDto, CreateRentGoalDto } from './dto/sponsorship.dto';
-import { NotificationsService } from '../notifications/notifications.service';
+import { PaystackService } from '../payments/paystack.service';
 
 function generateToken(): string {
   return crypto.randomUUID().replace(/-/g, '');
@@ -15,7 +15,7 @@ function generateToken(): string {
 
 @Injectable()
 export class SponsorshipService {
-  constructor(private readonly notif: NotificationsService) {}
+  constructor(private readonly paystack: PaystackService) {}
 
   async createGoal(tenantId: string, dto: CreateRentGoalDto) {
     const [goal] = await db
@@ -35,10 +35,7 @@ export class SponsorshipService {
   }
 
   async getMyGoals(tenantId: string) {
-    return db
-      .select()
-      .from(rentGoal)
-      .where(eq(rentGoal.tenantId, tenantId));
+    return db.select().from(rentGoal).where(eq(rentGoal.tenantId, tenantId));
   }
 
   async getByToken(token: string) {
@@ -50,7 +47,8 @@ export class SponsorshipService {
     if (!goal) throw new NotFoundException('Goal not found.');
 
     // Omit internal fields from public view
-    const { tenantId: _, ...publicGoal } = goal;
+    const { tenantId, ...publicGoal } = goal;
+    void tenantId;
     return publicGoal;
   }
 
@@ -61,65 +59,52 @@ export class SponsorshipService {
       .where(eq(rentGoal.shareToken, token))
       .limit(1);
     if (!goal) throw new NotFoundException('Goal not found.');
-    if (goal.status !== 'active') throw new BadRequestException('Goal is no longer active.');
+    if (goal.status !== 'active')
+      throw new BadRequestException('Goal is no longer active.');
     if (new Date(goal.deadline) < new Date()) {
       throw new BadRequestException('This goal has expired.');
     }
 
-    if (!sponsorId && (!dto.sponsorName || !dto.sponsorEmail)) {
-      throw new BadRequestException('Guest sponsors must provide name and email.');
+    if (!sponsorId && !dto.sponsorName) {
+      throw new BadRequestException('Guest sponsors must provide a name.');
     }
 
     const ref = `SPONS-${Date.now()}`;
     const [p] = await db
       .insert(payment)
       .values({
-        payerId: sponsorId ?? goal.tenantId,
+        payerId: sponsorId ?? null,
         amount: dto.amount,
         type: 'sponsorship_contribution',
-        status: 'completed',
+        status: 'pending',
         provider: 'paystack',
         providerReference: ref,
+        metadata: {
+          goalId: goal.id,
+          sponsorId: sponsorId ?? null,
+          sponsorName: dto.sponsorName ?? null,
+          sponsorEmail: dto.sponsorEmail ?? null,
+          isAnonymous: dto.isAnonymous ?? false,
+          message: dto.message ?? null,
+        },
       })
       .returning();
 
-    const [contribution] = await db
-      .insert(sponsorshipContribution)
-      .values({
-        goalId: goal.id,
-        sponsorId: sponsorId ?? null,
-        sponsorName: dto.sponsorName,
-        sponsorEmail: dto.sponsorEmail,
+    try {
+      const checkout = await this.paystack.initializeTransaction({
+        email: dto.sponsorEmail,
         amount: dto.amount,
-        isAnonymous: dto.isAnonymous ?? false,
-        paymentId: p.id,
-        message: dto.message,
-      })
-      .returning();
-
-    const newAmount = goal.currentAmount + dto.amount;
-    const isComplete = newAmount >= goal.targetAmount;
-
-    await db
-      .update(rentGoal)
-      .set({
-        currentAmount: newAmount,
-        status: isComplete ? 'completed' : 'active',
-        updatedAt: new Date(),
-      })
-      .where(eq(rentGoal.id, goal.id));
-
-    await this.notif.create({
-      userId: goal.tenantId,
-      type: 'sponsorship_received',
-      title: isComplete ? '🎉 Goal Reached!' : 'New Contribution',
-      body: isComplete
-        ? `Your rent goal has been fully funded!`
-        : `Someone contributed ₦${(dto.amount / 100).toLocaleString()} to your goal.`,
-      data: { goalId: goal.id },
-    });
-
-    return contribution;
+        reference: ref,
+        metadata: { paymentId: p.id, paymentType: p.type, goalId: goal.id },
+      });
+      return { paymentId: p.id, amount: dto.amount, ...checkout };
+    } catch (error) {
+      await db
+        .update(payment)
+        .set({ status: 'failed', updatedAt: new Date() })
+        .where(eq(payment.id, p.id));
+      throw error;
+    }
   }
 
   async getContributors(goalId: string, tenantId: string) {
@@ -136,7 +121,14 @@ export class SponsorshipService {
       .where(eq(sponsorshipContribution.goalId, goalId));
 
     return contribs.map((c) =>
-      c.isAnonymous ? { ...c, sponsorName: 'Anonymous', sponsorEmail: null, sponsorId: null } : c,
+      c.isAnonymous
+        ? {
+            ...c,
+            sponsorName: 'Anonymous',
+            sponsorEmail: null,
+            sponsorId: null,
+          }
+        : c,
     );
   }
 }

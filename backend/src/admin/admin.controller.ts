@@ -22,7 +22,9 @@ export class AdminController {
   // ── KYC queue ──────────────────────────────────────────────────────────────
 
   @Get('kyc-queue')
-  @ApiOperation({ summary: 'List all KYC docs with status submitted or under_review' })
+  @ApiOperation({
+    summary: 'List all KYC docs with status submitted or under_review',
+  })
   getKycQueue() {
     return this.service.getKycQueue();
   }
@@ -38,8 +40,14 @@ export class AdminController {
   }
 
   @Patch('kyc-documents/:id/approve')
-  @ApiOperation({ summary: 'Approve KYC document — auto-promotes landlord when all docs approved' })
-  approveKycDocument(@Param('id') id: string, @CurrentUser() user: SessionUser) {
+  @ApiOperation({
+    summary:
+      'Approve KYC document — auto-promotes landlord when all docs approved',
+  })
+  approveKycDocument(
+    @Param('id') id: string,
+    @CurrentUser() user: SessionUser,
+  ) {
     return this.service.approveKycDocument(id, user.id);
   }
 
@@ -56,7 +64,9 @@ export class AdminController {
   // ── User management ────────────────────────────────────────────────────────
 
   @Get('users')
-  @ApiOperation({ summary: 'List users — filterable by role, verificationStatus, search term' })
+  @ApiOperation({
+    summary: 'List users — filterable by role, verificationStatus, search term',
+  })
   listUsers(@Query() query: UserListQueryDto) {
     return this.service.listUsers(query);
   }
@@ -73,6 +83,12 @@ export class AdminController {
     return this.service.banUser(id);
   }
 
+  @Patch('users/:id/activate')
+  @ApiOperation({ summary: 'Restore a suspended account to active status' })
+  activateUser(@Param('id') id: string) {
+    return this.service.activateUser(id);
+  }
+
   // ── Listing moderation ─────────────────────────────────────────────────────
 
   @Get('listings-queue')
@@ -82,7 +98,9 @@ export class AdminController {
   }
 
   @Patch('listings/:id/approve')
-  @ApiOperation({ summary: 'Approve a listing — sets status to listed and stamps publishedAt' })
+  @ApiOperation({
+    summary: 'Approve a listing — sets status to listed and stamps publishedAt',
+  })
   approveListing(@Param('id') id: string) {
     return this.service.approveListing(id);
   }

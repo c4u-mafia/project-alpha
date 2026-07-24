@@ -1,13 +1,26 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
-import { user, userProfile, tenantProfile, landlordProfile } from '../db/schema';
+import {
+  user,
+  userProfile,
+  tenantProfile,
+  landlordProfile,
+} from '../db/schema';
 import type { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UserService {
   async getMe(userId: string) {
-    const [foundUser] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+    const [foundUser] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
     if (!foundUser) throw new NotFoundException('User not found.');
 
     const [profile] = await db
@@ -40,6 +53,7 @@ export class UserService {
       emailVerified: foundUser.emailVerified,
       image: foundUser.image,
       role: foundUser.role,
+      status: foundUser.status,
       createdAt: foundUser.createdAt,
       profile: profile ?? null,
       roleProfile,
@@ -88,7 +102,11 @@ export class UserService {
   }
 
   async getOnboardingStatus(userId: string) {
-    const [foundUser] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+    const [foundUser] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
     if (!foundUser) throw new NotFoundException('User not found.');
 
     const [profile] = await db
@@ -97,10 +115,15 @@ export class UserService {
       .where(eq(userProfile.userId, userId))
       .limit(1);
 
-    const profileComplete = Boolean(
-      profile?.phone && profile?.dateOfBirth && profile?.gender && profile?.city,
+    const tenantProfileComplete = Boolean(
+      profile?.phone &&
+      profile?.dateOfBirth &&
+      profile?.gender &&
+      profile?.city,
     );
-    const ninSubmitted = profile?.ninStatus !== 'not_submitted' && profile?.ninStatus != null;
+    const landlordProfileComplete = Boolean(profile?.phone && profile?.city);
+    const ninSubmitted =
+      profile?.ninStatus !== 'not_submitted' && profile?.ninStatus != null;
     const ninVerified = profile?.ninStatus === 'verified';
 
     if (foundUser.role === 'tenant') {
@@ -113,17 +136,17 @@ export class UserService {
       return {
         role: 'tenant',
         steps: {
-          profile: profileComplete,
+          profile: tenantProfileComplete,
           nin: ninSubmitted,
           ninVerified,
           employment: tp?.employmentStepCompleted ?? false,
           preferences: tp?.preferencesStepCompleted ?? false,
         },
         completed: Boolean(
-          profileComplete &&
-            ninVerified &&
-            tp?.employmentStepCompleted &&
-            tp?.preferencesStepCompleted,
+          tenantProfileComplete &&
+          ninVerified &&
+          tp?.employmentStepCompleted &&
+          tp?.preferencesStepCompleted,
         ),
       };
     }
@@ -138,12 +161,10 @@ export class UserService {
       return {
         role: 'landlord',
         steps: {
-          profile: profileComplete,
+          profile: landlordProfileComplete,
           nin: ninSubmitted,
           ninVerified,
-          documents: lp
-            ? lp.verificationStatus !== 'unverified'
-            : false,
+          documents: lp ? lp.verificationStatus !== 'unverified' : false,
           bank: lp?.bankStepCompleted ?? false,
         },
         completed: lp?.onboardingCompleted ?? false,
@@ -152,8 +173,8 @@ export class UserService {
 
     return {
       role: foundUser.role,
-      steps: { profile: profileComplete, nin: ninSubmitted },
-      completed: profileComplete && ninVerified,
+      steps: { profile: tenantProfileComplete, nin: ninSubmitted },
+      completed: tenantProfileComplete && ninVerified,
     };
   }
 }

@@ -5,7 +5,13 @@ import {
 } from '@nestjs/common';
 import { and, eq, ilike, or } from 'drizzle-orm';
 import { db } from '../db';
-import { kycDocument, landlordProfile, property, user } from '../db/schema';
+import {
+  kycDocument,
+  landlordProfile,
+  property,
+  session,
+  user,
+} from '../db/schema';
 import type {
   RejectKycDocumentDto,
   ReviewKycDocumentDto,
@@ -35,6 +41,7 @@ export class AdminService {
     reviewerId: string,
     dto: ReviewKycDocumentDto,
   ) {
+    void dto;
     const [doc] = await db
       .select()
       .from(kycDocument)
@@ -136,12 +143,6 @@ export class AdminService {
     const limit = query.limit ?? 20;
     const offset = (page - 1) * limit;
 
-    const conditions: ReturnType<typeof eq>[] = [];
-
-    if (query.role) {
-      conditions.push(eq(user.role, query.role as any));
-    }
-
     // Base query with left join to landlord_profile for verificationStatus filter
     const rows = await db
       .select({
@@ -150,6 +151,9 @@ export class AdminService {
         email: user.email,
         role: user.role,
         emailVerified: user.emailVerified,
+        status: user.status,
+        statusReason: user.statusReason,
+        statusChangedAt: user.statusChangedAt,
         createdAt: user.createdAt,
         verificationStatus: landlordProfile.verificationStatus,
       })
@@ -157,9 +161,22 @@ export class AdminService {
       .leftJoin(landlordProfile, eq(user.id, landlordProfile.userId))
       .where(
         and(
-          query.role ? eq(user.role, query.role as any) : undefined,
+          query.role
+            ? eq(user.role, query.role as 'tenant' | 'landlord' | 'admin')
+            : undefined,
+          query.status
+            ? eq(user.status, query.status as 'active' | 'suspended' | 'banned')
+            : undefined,
           query.verificationStatus
-            ? eq(landlordProfile.verificationStatus, query.verificationStatus as any)
+            ? eq(
+                landlordProfile.verificationStatus,
+                query.verificationStatus as
+                  | 'unverified'
+                  | 'documents_submitted'
+                  | 'under_review'
+                  | 'approved'
+                  | 'rejected',
+              )
             : undefined,
           query.search
             ? or(
@@ -184,9 +201,23 @@ export class AdminService {
       .limit(1);
     if (!found) throw new NotFoundException('User not found.');
 
-    // We use the welcomeEmailSentAt field as a stand-in status marker is not in schema.
-    // For now, return a soft confirmation — a `suspended` flag can be added to user table if needed.
-    return { id, suspended: true, reason: dto.reason ?? null };
+    const [updated] = await db
+      .update(user)
+      .set({
+        status: 'suspended',
+        statusReason: dto.reason ?? null,
+        statusChangedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, id))
+      .returning({
+        id: user.id,
+        status: user.status,
+        statusReason: user.statusReason,
+        statusChangedAt: user.statusChangedAt,
+      });
+    await db.delete(session).where(eq(session.userId, id));
+    return updated;
   }
 
   async banUser(id: string) {
@@ -197,7 +228,43 @@ export class AdminService {
       .limit(1);
     if (!found) throw new NotFoundException('User not found.');
 
-    return { id, banned: true };
+    const [updated] = await db
+      .update(user)
+      .set({
+        status: 'banned',
+        statusReason: 'Banned by an administrator.',
+        statusChangedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, id))
+      .returning({
+        id: user.id,
+        status: user.status,
+        statusReason: user.statusReason,
+        statusChangedAt: user.statusChangedAt,
+      });
+    await db.delete(session).where(eq(session.userId, id));
+    return updated;
+  }
+
+  async activateUser(id: string) {
+    const [updated] = await db
+      .update(user)
+      .set({
+        status: 'active',
+        statusReason: null,
+        statusChangedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, id))
+      .returning({
+        id: user.id,
+        status: user.status,
+        statusReason: user.statusReason,
+        statusChangedAt: user.statusChangedAt,
+      });
+    if (!updated) throw new NotFoundException('User not found.');
+    return updated;
   }
 
   // ── Listing moderation ─────────────────────────────────────────────────────
